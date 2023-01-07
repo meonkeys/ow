@@ -1,6 +1,6 @@
-# ow
+# 🦉 ow
 
-ow - Rudimentary Nextcloud command-line client 🦉
+ow - Rudimentary Nextcloud command-line client
 
 ## Usage
 
