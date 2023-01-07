@@ -9,7 +9,7 @@ ow - Nextcloud command-line client
 Given a local file path sync'd by the Nextcloud desktop client, return the Internal link on the Nextcloud server.
 
 ```
-$ ow pl ~/Nextcloud/test.md
+$ ow i ~/Nextcloud/test.md
 https://cloud.example.com/f/229
 ```
 
@@ -31,9 +31,9 @@ ow talks with the [Nextcloud WebDAV API](https://docs.nextcloud.com/server/lates
 
 ## History
 
-ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcloud-from-a-local-command-line/152774) with one command: `pl`. Hopefully by the time you are reading this it has learned more tricks. It began as a small, working proof of concept to see if I and others use this, like it, and want to do more with it. If we choose to continue working on it, here are some ideas on what we might do:
+ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcloud-from-a-local-command-line/152774) with one command (get internal link for locally sync'd file). Hopefully by the time you are reading this it has learned more tricks. If I and others use this, like it, and want to do more with it, here are some ideas on what we might do:
 
-## Other ideas
+## Ideas
 
 * add more features
     * post chat messages

@@ -50,10 +50,10 @@ nextcloudPassword = 'admin'
 ##########################################################################
 
 if len(sys.argv) != 3:
-    print('Usage: {} pl FILE'.format(sys.argv[0]), file=sys.stderr)
+    print('Usage: {} i FILE'.format(sys.argv[0]), file=sys.stderr)
     sys.exit(1)
 
-if sys.argv[1] != 'pl':
+if sys.argv[1] != 'i':
     print('Sorry, I only know one trick so far. Care to teach me another?', file=sys.stderr)
     sys.exit(1)
 
