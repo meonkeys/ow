@@ -8,7 +8,7 @@ ow - Rudimentary Nextcloud command-line client 🦉
 
 Given a local file path sync'd by the Nextcloud desktop client, return the Internal link on the Nextcloud server.
 
-```bash
+```
 $ ow pl ~/Nextcloud/test.md
 https://cloud.example.com/f/229
 ```
