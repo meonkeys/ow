@@ -31,7 +31,7 @@ ow talks with the [Nextcloud WebDAV API](https://docs.nextcloud.com/server/lates
 
 ## History
 
-ow started with one command: `pl`. Hopefully by the time you are reading this it has learned more tricks. It began as a small, working proof of concept to see if I and others use this, like it, and want to do more with it. If we choose to continue working on it, here are some ideas on what we might do:
+ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcloud-from-a-local-command-line/152774) with one command: `pl`. Hopefully by the time you are reading this it has learned more tricks. It began as a small, working proof of concept to see if I and others use this, like it, and want to do more with it. If we choose to continue working on it, here are some ideas on what we might do:
 
 ## Other ideas
 
