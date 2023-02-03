@@ -67,7 +67,7 @@ realpath = os.path.realpath(sys.argv[2])
 relativePathOnly = re.sub(localSyncFolder, '', realpath)
 
 # munge what's left into fileurl
-fileurl = '/'.join([nextcloudServer, nextcloudWebdavFileRoot, nextcloudUsername, relativePathOnly])
+fileurl = os.path.sep.join([nextcloudServer, nextcloudWebdavFileRoot, nextcloudUsername, relativePathOnly])
 
 _propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
 <d:propfind xmlns:d="DAV:">

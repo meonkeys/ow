@@ -15,8 +15,6 @@ https://cloud.example.com/f/229
 
 ## Installation
 
-NOTE: only works on Linux so far
-
 * install prerequisites
     * Python 3
     * Nextcloud desktop sync client
@@ -55,6 +53,9 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 * use a real contributor agreement
 * Are there other/better free software utilities like this one? List/promote them.
 * Would it make more sense to implement this and the other feature ideas (above) within the [official client](https://docs.nextcloud.com/desktop/latest/advancedusage.html)? Do the maintainers want these features?
+* support Windows, Linux, macos
+    * test on platforms other than Linux
+    * add documentation for platforms other than Linux
 
 ## COPYLEFT AND LICENSE
 
