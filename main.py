@@ -114,21 +114,20 @@ def getFileId(auth, fileurl):
 
     return fileId
 
-def lockOrUnlock(action, auth, fileId):
+def lockOrUnlock(action, auth, fileurl):
     if action == 'lock':
-        method = 'PUT'
+        method = 'LOCK'
     elif action == 'unlock':
-        method = 'DELETE'
+        method = 'UNLOCK'
     else:
         print(f'⛔ internal error. action={action}', file=sys.stderr)
 
-    url = f'{nextcloudServer}/ocs/v2.php/apps/files_lock/lock/{fileId}'
-    headers = {'OCS-APIRequest': 'true'}
-    debug(f'📄 request: {method} {url}')
+    headers = {'X-User-Lock': '1'}
+    debug(f'📄 request: {method} {fileurl}')
     debug(f'📎 headers: {headers}')
 
     try:
-        response = requests.request(method, url, auth=_auth, headers=headers)
+        response = requests.request(method, fileurl, auth=_auth, headers=headers)
     except requests.RequestException as e:
         print(f'⛔ request failed: {e}', file=sys.stderr)
         sys.exit(1)
@@ -136,9 +135,8 @@ def lockOrUnlock(action, auth, fileId):
     # response status code must be between 200 and 400 to continue
     # use overloaded __bool__() to check this
     if not response:
-        # FIXME this question is not too useful. Could also be that user requested to unlock an unlocked file.
-        print(f'⛔ {action} failed. Is the Temporary files lock app installed?', file=sys.stderr)
-        print(f'📄 HTTP request was {method} {url}', file=sys.stderr)
+        print(f'⛔ {action} failed. Is the Temporary files lock app installed? If attempting to unlock, is the path actually locked?', file=sys.stderr)
+        print(f'📄 HTTP request was {method} {fileurl}', file=sys.stderr)
         print(f'📨 HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
         sys.exit(1)
 
@@ -149,13 +147,11 @@ if args.action in ['i','internal-link']:
     print('{}/f/{}'.format(nextcloudServer, fileId))
 
 if args.action in ['l','lock']:
-    fileId = getFileId(_auth, _fileurl)
     debug(f'🏃 locking...')
-    lockOrUnlock('lock', _auth, fileId)
+    lockOrUnlock('lock', _auth, _fileurl)
     debug('🔒 success!')
 
 if args.action in ['u','unlock']:
-    fileId = getFileId(_auth, _fileurl)
     debug('🏃 unlocking...')
-    lockOrUnlock('unlock', _auth, fileId)
+    lockOrUnlock('unlock', _auth, _fileurl)
     debug('🔓 success!')
