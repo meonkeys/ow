@@ -4,13 +4,47 @@ ow - Nextcloud command-line client
 
 ## Usage
 
-### Get internal link
+### Help
 
-Given a local file path sync'd by the Nextcloud desktop client, return the Internal link on the Nextcloud server.
+List available actions.
 
 ```
-$ ow i ~/Nextcloud/test.md
+$ ow --help
+usage: ow [-h] [-d] {i,internal-link,l,lock,u,unlock} path
+
+positional arguments:
+  {i,internal-link,l,lock,u,unlock}
+                        action to perform
+  path                  local path to operate on
+
+options:
+  -h, --help            show this help message and exit
+  -d, --debug           enable debug messages
+```
+
+### Get internal link
+
+Given a local file path sync'd by the Nextcloud desktop client, return the "internal link" on the Nextcloud server.
+
+```
+$ ow internal-link ~/Nextcloud/test.md
 https://cloud.example.com/f/229
+```
+
+### Lock
+
+Lock a file. Requires the [Temporary files lock app](https://apps.nextcloud.com/apps/files_lock).
+
+```
+$ ow lock ~/Nextcloud/test.md
+```
+
+### Unock
+
+Unlock a file. Requires the [Temporary files lock app](https://apps.nextcloud.com/apps/files_lock).
+
+```
+$ ow unlock ~/Nextcloud/test.md
 ```
 
 ## Installation

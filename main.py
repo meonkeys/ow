@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import os
 import re
 import requests
@@ -49,49 +50,112 @@ nextcloudPassword = 'admin'
 # MAIN CODE - probably leave this alone unless you wanna hack
 ##########################################################################
 
-if len(sys.argv) != 3:
-    print('Usage: {} i FILE'.format(sys.argv[0]), file=sys.stderr)
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
+parser.add_argument('action', help='action to perform', choices=['i','internal-link','l','lock','u','unlock'])
+parser.add_argument('path', help='local path to operate on')
+args = parser.parse_args()
+
+def debug(msg):
+    if args.debug:
+        print(msg, file=sys.stderr)
+
+debug(f'👟 action is {args.action}')
+
+if not os.path.exists(args.path):
+    print('⛔ Error: path does not exist', file=sys.stderr)
+    parser.print_usage()
     sys.exit(1)
 
-if sys.argv[1] != 'i':
-    print('Sorry, I only know one trick so far. Care to teach me another?', file=sys.stderr)
-    sys.exit(1)
-
-if not os.path.exists(sys.argv[2]):
-    print('path does not exist', file=sys.stderr)
-    sys.exit(1)
-
-realpath = os.path.realpath(sys.argv[2])
+realpath = os.path.realpath(args.path)
+debug(f'📁 absolute path is {realpath}')
 
 # remove localSyncFolder from realpath
-relativePathOnly = re.sub(localSyncFolder, '', realpath)
+relativePathOnly = re.sub(localSyncFolder, '', realpath)[1:]
+debug(f'🗂️ relative path is {relativePathOnly}')
 
-# munge what's left into fileurl
-fileurl = os.path.sep.join([nextcloudServer, nextcloudWebdavFileRoot, nextcloudUsername, relativePathOnly])
+# munge what's left into _fileurl
+_fileurl = '/'.join([nextcloudServer, nextcloudWebdavFileRoot, nextcloudUsername, relativePathOnly])
+debug(f'💻 WebDAV path is {_fileurl}')
 
-_propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
-<d:propfind xmlns:d="DAV:">
-  <d:prop xmlns:oc="http://owncloud.org/ns">
-    <oc:fileid/>
-  </d:prop>
-</d:propfind>'''
+_auth = (nextcloudUsername, nextcloudPassword)
 
-try:
-    response = requests.request('PROPFIND', fileurl, auth=(nextcloudUsername, nextcloudPassword), data=_propfindBody)
-except requests.RequestException as e:
-    print('PROPFIND request failed: {}'.format(e), file=sys.stderr)
-    sys.exit(1)
+def getFileId(auth, fileurl):
+    debug('🏃 fetching internal file ID...')
 
-# response status code must be between 200 and 400 to continue
-if not response:
-    print('HTTP response code {}. Response text: {}'.format(response.status_code, response.text), file=sys.stderr)
-    sys.exit(1)
+    _propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
+    <d:propfind xmlns:d="DAV:">
+      <d:prop xmlns:oc="http://owncloud.org/ns">
+        <oc:fileid/>
+      </d:prop>
+    </d:propfind>'''
 
-root = cET.fromstring(response.text)
-fileId = root.findtext('.//{http://owncloud.org/ns}fileid')
+    try:
+        response = requests.request('PROPFIND', fileurl, auth=auth, data=_propfindBody)
+    except requests.RequestException as e:
+        print('⛔ PROPFIND request failed: {}'.format(e), file=sys.stderr)
+        sys.exit(1)
 
-if fileId is None:
-    print('HTTP response code {}. Response text: {}'.format(response.status_code, response.text), file=sys.stderr)
-    sys.exit(1)
+    # response status code must be between 200 and 400 to continue
+    # use overloaded __bool__() to check this
+    if not response:
+        print(f'⛔ HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
 
-print('{}/f/{}'.format(nextcloudServer, fileId))
+    debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
+
+    root = cET.fromstring(response.text)
+    fileId = root.findtext('.//{http://owncloud.org/ns}fileid')
+    debug(f'🗃️ fileId is {fileId}')
+
+    if fileId is None:
+        print('⛔ HTTP response code {}. Response text: {}'.format(response.status_code, response.text), file=sys.stderr)
+        sys.exit(1)
+
+    return fileId
+
+def lockOrUnlock(action, auth, fileId):
+    if action == 'lock':
+        method = 'PUT'
+    elif action == 'unlock':
+        method = 'DELETE'
+    else:
+        print(f'⛔ internal error. action={action}', file=sys.stderr)
+
+    url = f'{nextcloudServer}/ocs/v2.php/apps/files_lock/lock/{fileId}'
+    headers = {'OCS-APIRequest': 'true'}
+    debug(f'📄 request: {method} {url}')
+    debug(f'📎 headers: {headers}')
+
+    try:
+        response = requests.request(method, url, auth=_auth, headers=headers)
+    except requests.RequestException as e:
+        print(f'⛔ request failed: {e}', file=sys.stderr)
+        sys.exit(1)
+
+    # response status code must be between 200 and 400 to continue
+    # use overloaded __bool__() to check this
+    if not response:
+        # FIXME this question is not too useful. Could also be that user requested to unlock an unlocked file.
+        print(f'⛔ {action} failed. Is the Temporary files lock app installed?', file=sys.stderr)
+        print(f'📄 HTTP request was {method} {url}', file=sys.stderr)
+        print(f'📨 HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
+
+    debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
+
+if args.action in ['i','internal-link']:
+    fileId = getFileId(_auth, _fileurl)
+    print('{}/f/{}'.format(nextcloudServer, fileId))
+
+if args.action in ['l','lock']:
+    fileId = getFileId(_auth, _fileurl)
+    debug(f'🏃 locking...')
+    lockOrUnlock('lock', _auth, fileId)
+    debug('🔒 success!')
+
+if args.action in ['u','unlock']:
+    fileId = getFileId(_auth, _fileurl)
+    debug('🏃 unlocking...')
+    lockOrUnlock('unlock', _auth, fileId)
+    debug('🔓 success!')
