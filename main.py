@@ -135,7 +135,7 @@ def lockOrUnlock(action, auth, fileurl):
     # response status code must be between 200 and 400 to continue
     # use overloaded __bool__() to check this
     if not response:
-        print(f'⛔ {action} failed. Is the Temporary files lock app installed? If attempting to unlock, is the path actually locked?', file=sys.stderr)
+        print(f'⛔ {action} failed. Is the Temporary files lock app installed? If attempting to lock, is it already locked by someone/something else? If attempting to unlock, is the path actually locked?', file=sys.stderr)
         print(f'📄 HTTP request was {method} {fileurl}', file=sys.stderr)
         print(f'📨 HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
         sys.exit(1)
