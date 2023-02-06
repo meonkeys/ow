@@ -2,6 +2,10 @@
 
 ow - Nextcloud command-line client
 
+## Introduction
+
+ow (like, you're trying to say "owl" and almost succeed) is your handy local command-line pal for Nextcloud. Perform various operations to enhance local editing, collaboration, and more.
+
 ## Usage
 
 ### Help
@@ -22,6 +26,8 @@ options:
   -d, --debug           enable debug messages
 ```
 
+Output is minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
+
 ### Get internal link
 
 Given a local file path sync'd by the Nextcloud desktop client, return the "internal link" on the Nextcloud server.
@@ -38,6 +44,8 @@ Lock a file. Requires the [Temporary files lock app](https://apps.nextcloud.com/
 ```
 $ ow lock ~/Nextcloud/test.md
 ```
+
+Locking indicates to other users your wish to avoid conflicts in shared files.
 
 ### Unock
 
