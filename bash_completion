@@ -1,0 +1,12 @@
+function _ow_comp() {
+    COMPREPLY=()
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    # FIXME - doesn't handle any options, e.g. -d / --debug
+    if [[ "$COMP_CWORD" -eq 1 ]]; then
+        COMPREPLY=($(compgen -W 'i internal-link l lock u unlock' -- "$cur"))
+    else
+        COMPREPLY=($(compgen -f -- "$cur"))
+    fi
+}
+
+complete -F _ow_comp ow

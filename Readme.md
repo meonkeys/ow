@@ -98,6 +98,7 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 * support Windows, Linux, macos
     * test on platforms other than Linux
     * add documentation for platforms other than Linux
+* [improve Bash programmable](https://stackoverflow.com/questions/14597466/custom-tab-completion-in-python-argparse) [completion](https://stackoverflow.com/questions/9568611/how-does-argparse-and-the-deprecated-optparse-respond-to-tab-keypress-after)
 
 ## COPYLEFT AND LICENSE
 
