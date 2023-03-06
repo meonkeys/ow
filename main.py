@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# ow - Nextcloud command-line client
+# ow - Nextcloud command-line client - main code
 # Copyright (C) 2023  Adam Monsen
 # 
 # This program is free software: you can redistribute it and/or modify
