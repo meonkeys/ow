@@ -99,7 +99,9 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 * support Windows, Linux, macos
     * test on platforms other than Linux
     * add documentation for platforms other than Linux
-* [improve Bash programmable](https://stackoverflow.com/questions/14597466/custom-tab-completion-in-python-argparse) [completion](https://stackoverflow.com/questions/9568611/how-does-argparse-and-the-deprecated-optparse-respond-to-tab-keypress-after)
+* improve Bash programmable completion
+    * get completions from the python script itself
+    * see also: [this](https://stackoverflow.com/questions/14597466/custom-tab-completion-in-python-argparse), [this](https://stackoverflow.com/questions/9568611/how-does-argparse-and-the-deprecated-optparse-respond-to-tab-keypress-after), and [this](https://spin.atomicobject.com/2016/02/14/bash-programmable-completion/)
 
 ## COPYLEFT AND LICENSE
 
