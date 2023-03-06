@@ -64,6 +64,7 @@ $ ow unlock ~/Nextcloud/test.md
 * edit values under `YOUR CONFIG`
 * put the script in your path, for example: `~/bin/ow`
 * make sure it is executable
+* for auto-completion in Bash, source `bash_completion`
 
 ## Architecture
 
