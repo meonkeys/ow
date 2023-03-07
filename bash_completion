@@ -20,7 +20,13 @@ function _ow_comp() {
     if [[ "$COMP_CWORD" -eq 1 ]]; then
         COMPREPLY=($(compgen -W '-h --help -d --debug i internal-link l lock u unlock' -- "$cur"))
     else
-        COMPREPLY=($(compgen -f -- "$cur"))
+        local IFS=$'\n'
+        local CANDIDATES=($(compgen -f -- "$cur"))
+        if [ ${#CANDIDATES[*]} -eq 0 ]; then
+            COMPREPLY=()
+        else
+            COMPREPLY=($(printf '%q\n' "${CANDIDATES[@]}"))
+        fi
     fi
 }
 
