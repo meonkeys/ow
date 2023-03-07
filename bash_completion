@@ -26,6 +26,7 @@ function _ow_comp() {
             COMPREPLY=()
         else
             # FIXME - escapes spaces even in quotes
+            # FIXME - doesn't properly complete directories (adds a space)
             COMPREPLY=($(printf '%q\n' "${CANDIDATES[@]}"))
         fi
     fi
