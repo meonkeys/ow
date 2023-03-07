@@ -25,6 +25,7 @@ function _ow_comp() {
         if [ ${#CANDIDATES[*]} -eq 0 ]; then
             COMPREPLY=()
         else
+            # FIXME - escapes spaces even in quotes
             COMPREPLY=($(printf '%q\n' "${CANDIDATES[@]}"))
         fi
     fi
