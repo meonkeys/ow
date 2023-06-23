@@ -52,7 +52,7 @@ nextcloudPassword = 'admin'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
-parser.add_argument('action', help='action to perform', choices=['i','internal-link','l','lock','u','unlock'])
+parser.add_argument('action', help='action to perform', choices=['h','html-link','i','internal-link','l','lock','u','unlock'])
 parser.add_argument('path', help='local path to operate on')
 args = parser.parse_args()
 
@@ -142,9 +142,12 @@ def lockOrUnlock(action, auth, fileurl):
 
     debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
 
+def renderInternalUrl(nextcloudServer, fileId):
+    return '{}/f/{}'.format(nextcloudServer, fileId)
+
 if args.action in ['i','internal-link']:
     fileId = getFileId(_auth, _fileurl)
-    print('{}/f/{}'.format(nextcloudServer, fileId))
+    print(renderInternalUrl(nextcloudServer, fileId))
 
 if args.action in ['l','lock']:
     debug(f'🏃 locking...')
@@ -155,3 +158,8 @@ if args.action in ['u','unlock']:
     debug('🏃 unlocking...')
     lockOrUnlock('unlock', _auth, _fileurl)
     debug('🔓 success!')
+
+if args.action in ['h','html-link']:
+    fileId = getFileId(_auth, _fileurl)
+    internalUrl = renderInternalUrl(nextcloudServer, fileId)
+    print(f'<a href="{internalUrl}">{relativePathOnly}</a>')

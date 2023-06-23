@@ -14,10 +14,10 @@ List available actions.
 
 ```
 $ ow --help
-usage: ow [-h] [-d] {i,internal-link,l,lock,u,unlock} path
+usage: ow [-h] [-d] {h,html-link,i,internal-link,l,lock,u,unlock} path
 
 positional arguments:
-  {i,internal-link,l,lock,u,unlock}
+  {h,html-link,i,internal-link,l,lock,u,unlock}
                         action to perform
   path                  local path to operate on
 
@@ -27,6 +27,17 @@ options:
 ```
 
 Output is minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
+
+### Get HTML link
+
+Given a local file path sync'd by the Nextcloud desktop client, return a snippet of HTML to link to the file.
+
+```
+$ ow html-link ~/Nextcloud/Documents/test.md
+<a href="https://cloud.example.com/f/216">Documents/test.md</a>
+```
+
+On Ubuntu Desktop, you can feed the output to `wl-copy -t text/html` then paste the link into any rich text editor.
 
 ### Get internal link
 
