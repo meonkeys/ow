@@ -93,7 +93,7 @@ def getFileId(auth, fileurl):
     try:
         response = requests.request('PROPFIND', fileurl, auth=auth, data=_propfindBody)
     except requests.RequestException as e:
-        print('⛔ PROPFIND request failed: {}'.format(e), file=sys.stderr)
+        print(f'⛔ PROPFIND request failed: {e}', file=sys.stderr)
         sys.exit(1)
 
     # response status code must be between 200 and 400 to continue
@@ -109,7 +109,7 @@ def getFileId(auth, fileurl):
     debug(f'🗃️ fileId is {fileId}')
 
     if fileId is None:
-        print('⛔ HTTP response code {}. Response text: {}'.format(response.status_code, response.text), file=sys.stderr)
+        print(f'⛔ HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
         sys.exit(1)
 
     return fileId
@@ -143,7 +143,7 @@ def lockOrUnlock(action, auth, fileurl):
     debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
 
 def renderInternalUrl(nextcloudServer, fileId):
-    return '{}/f/{}'.format(nextcloudServer, fileId)
+    return f'{nextcloudServer}/f/{fileId}'
 
 if args.action in ['i','internal-link']:
     fileId = getFileId(_auth, _fileurl)
