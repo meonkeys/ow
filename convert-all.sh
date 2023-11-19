@@ -12,7 +12,7 @@ IFS='
 
 for folder in $(cat "$todo"); do
     echo "... $folder ..."
-    ./diralbum.py dir-album "$folder"
+    ./main.py dir-album "$folder"
     sleep 2
 done
 

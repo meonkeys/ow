@@ -35,12 +35,6 @@ nextcloudWebdavFileRoot = 'remote.php/dav/files'
 
 nextcloudServer = 'http://localhost:8080'
 
-# where files are sync'd locally
-localSyncFolder = '/home/user/Nextcloud'
-
-# root of localSyncFolder on Nextcloud server
-remoteDestinationFolder = '/'
-
 nextcloudUsername = 'admin'
 
 # if you use multi-factor auth, use an app password here
