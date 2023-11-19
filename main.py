@@ -27,7 +27,7 @@ import xml.etree.cElementTree as cET
 # INTERNAL CONFIG - don't change these
 ##########################################################################
 
-nextcloudWebdavFileRoot = 'remote.php/dav/files'
+nextcloudWebdavRoot = 'remote.php/dav/files'
 
 ##########################################################################
 # YOUR CONFIG - change these
