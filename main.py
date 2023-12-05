@@ -22,23 +22,22 @@ import re
 import requests
 import sys
 import xml.etree.cElementTree as cET
+from dotenv import load_dotenv
 
 ##########################################################################
-# INTERNAL CONFIG - don't change these
+# INTERNAL CONFIG
 ##########################################################################
 
 nextcloudWebdavRoot = 'remote.php/dav'
 
 ##########################################################################
-# YOUR CONFIG - change these
+# LOAD EXTERNAL CONFIG FROM .env FILE
 ##########################################################################
 
-nextcloudServer = 'http://localhost:8080'
-
-nextcloudUsername = 'admin'
-
-# if you use multi-factor auth, use an app password here
-nextcloudPassword = 'admin'
+load_dotenv()
+nextcloudServer = os.getenv('nextcloudServer')
+nextcloudUsername = os.getenv('nextcloudUsername')
+nextcloudPassword = os.getenv('nextcloudPassword')
 
 ##########################################################################
 # MAIN CODE - probably leave this alone unless you wanna hack
@@ -49,6 +48,19 @@ parser.add_argument('-d', '--debug', help='enable debug messages', action='store
 parser.add_argument('action', help='action to perform', choices=['da','dir-album'])
 parser.add_argument('target', help='path or name or something')
 args = parser.parse_args()
+
+# Check for debug mode and import additional libraries if needed
+if args.debug:
+    try:
+        import tempfile
+        import subprocess
+        import urllib
+    except ImportError:
+        print('⛔ You need to install additional libraries for debugging via '
+              'pip install -r requirements-dev.txt',
+              file=sys.stderr)
+        sys.exit(1)
+
 
 def debug(msg):
     if args.debug:
