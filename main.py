@@ -23,6 +23,7 @@ import requests
 import sys
 import xml.etree.cElementTree as cET
 from dotenv import load_dotenv
+import urllib
 
 ##########################################################################
 # INTERNAL CONFIG
@@ -54,7 +55,6 @@ if args.debug:
     try:
         import tempfile
         import subprocess
-        import urllib
     except ImportError:
         print('⛔ You need to install additional libraries for debugging via '
               'pip install -r requirements-dev.txt',
