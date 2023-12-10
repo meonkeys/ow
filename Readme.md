@@ -84,10 +84,9 @@ $ ow unlock ~/Nextcloud/test.md
     * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
         * on Debian/Ubuntu: `apt install libxml2-utils`
 * create config file based on example below
-* put the script in your path
+* optional: put the script in your path
     * example: `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
-* make sure it is executable
-* for auto-completion in Bash, source `bash_completion`
+* optional: for auto-completion in Bash, source `bash_completion`
 
 ### example config
 
