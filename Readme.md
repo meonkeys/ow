@@ -92,12 +92,18 @@ $ ow unlock ~/Nextcloud/test.md
 Create `~/.config/ow/ow.ini` and customize, following the example below:
 
 ```ini
-[DEFAULT]
-nextcloudServer = http://localhost:8080
-nextcloudUsername = admin
+[server]
+baseUrl = http://localhost:8080
+username = admin
+# If you use multi-factor auth, use an app password here.
+password = admin
 
-# if you use multi-factor auth, use an app password here
-nextcloudPassword = admin
+[local]
+# If you use the Nextcloud Desktop client, set this to indicate where files are sync'd.
+# Required fo lock, unlock, and internal-url.
+# Not needed for dir-album.
+syncFolder = /home/joeuser/Nextcloud
+
 ```
 
 ## Architecture

@@ -22,6 +22,8 @@ import os
 import re
 import requests
 import sys
+import subprocess
+import tempfile
 import xml.etree.cElementTree as cET
 import urllib
 
@@ -29,8 +31,8 @@ nextcloudWebdavRoot = 'remote.php/dav'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
-parser.add_argument('action', help='action to perform', choices=['da','dir-album'])
-parser.add_argument('target', help='path to operate on. For internal-link, lock, and unlock, this is a local path. For dir-album, this is a remote path.')
+parser.add_argument('action', help='action to perform', choices=['da','dir-album','i','internal-link','l','lock','u','unlock'])
+parser.add_argument('target', help='target to operate on. For dir-album, this is a remote path. For internal-link, lock, and unlock, this is a local path.')
 args = parser.parse_args()
 
 defaultConfigLocation = os.path.expanduser('~/.config/ow/ow.ini')
@@ -43,29 +45,25 @@ else:
     print(f'⛔ Config not found. Please create {defaultConfigLocation} based on owconfig.example.', file=sys.stderr)
     sys.exit(1)
 
-nextcloudServer = config['DEFAULT']['nextcloudServer']
-nextcloudUsername = config['DEFAULT']['nextcloudUsername']
-nextcloudPassword = config['DEFAULT']['nextcloudPassword']
-
 def debug(msg):
     if args.debug:
         print(msg, file=sys.stderr)
 
 debug(f'👟 action is {args.action}')
 
-_auth = (nextcloudUsername, nextcloudPassword)
+_auth = (config['server']['username'], config['server']['password'])
 
 def getFilesUrl(path):
-    global nextcloudServer, nextcloudWebdavRoot, nextcloudUsername
+    global config, nextcloudWebdavRoot
 
-    _filesUrl = '/'.join([nextcloudServer, nextcloudWebdavRoot, 'files', nextcloudUsername, path])
+    _filesUrl = '/'.join([config['server']['baseUrl'], nextcloudWebdavRoot, 'files', config['server']['username'], path])
     debug(f'💻 WebDAV files URL is {_filesUrl}')
     return _filesUrl
 
 def getAlbumUrl(albumName):
-    global nextcloudServer, nextcloudWebdavRoot, nextcloudUsername
+    global config, nextcloudWebdavRoot
     safeAlbumName = urllib.parse.quote(albumName)
-    _albumUrl = '/'.join([nextcloudServer, nextcloudWebdavRoot, 'photos', nextcloudUsername, 'albums', safeAlbumName])
+    _albumUrl = '/'.join([config['server']['baseUrl'], nextcloudWebdavRoot, 'photos', config['server']['username'], 'albums', safeAlbumName])
     debug(f'💻 WebDAV album URL is {_albumUrl}')
     return _albumUrl
 
@@ -115,7 +113,7 @@ def isCollectionOrExit(filesUrl):
         sys.exit(1)
 
 def getMedia(filesUrl):
-    global _auth, args
+    global config, _auth, args
     debug('🏃 finding media in given folder...')
 
     _propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -150,13 +148,13 @@ def getMedia(filesUrl):
         if contentType:
             if contentType.startswith('image') or contentType.startswith('video'):
                 # the "d:href" element has a path, like "/remote.php/dav/files/adam/tmp/2023-08-07%20test/test2.png"
-                media.append(nextcloudServer + r.find('.//{DAV:}href').text)
+                media.append(config['server']['baseUrl'] + r.find('.//{DAV:}href').text)
 
     return media
 
 def createAlbum(albumName):
     global _auth
-    debug('🏃 creating album...')
+    print(f'🏃 creating album {albumName}...')
 
     albumUrl = getAlbumUrl(albumName)
 
@@ -182,7 +180,7 @@ def populateAlbum(cleanedAlbumName, albumUrl, mediaUrls):
 
     for mediaUrl in mediaUrls:
         mediaFilename = os.path.basename(mediaUrl)
-        debug(f'📰 adding {mediaFilename} to {cleanedAlbumName}')
+        print(f'📰 adding {mediaFilename} to {cleanedAlbumName}')
         headers = {'Destination': '/'.join([albumUrl, mediaFilename])}
         try:
             response = requests.request('COPY', mediaUrl, auth=_auth, headers=headers)
@@ -209,6 +207,86 @@ def cleanAlbumName(rawAlbumName):
         sys.exit(1)
     return clean
 
+def normalizeLocalPath(localPath):
+    global config
+    if not os.path.exists(localPath):
+        print('⛔ Error: path does not exist', file=sys.stderr)
+        sys.exit(1)
+
+    realpath = os.path.realpath(localPath)
+    debug(f'📁 absolute path is {realpath}')
+
+    # remove localSyncFolder from realpath
+    relativePathOnly = re.sub(config['local']['syncFolder'], '', realpath)[1:]
+    debug(f'🗂️ relative path is {relativePathOnly}')
+
+    return relativePathOnly
+
+def getFileId(fileurl):
+    global _auth
+    debug('🏃 fetching internal file ID...')
+
+    _propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
+    <d:propfind xmlns:d="DAV:">
+      <d:prop xmlns:oc="http://owncloud.org/ns">
+        <oc:fileid/>
+      </d:prop>
+    </d:propfind>'''
+
+    try:
+        response = requests.request('PROPFIND', fileurl, auth=_auth, data=_propfindBody)
+    except requests.RequestException as e:
+        print(f'⛔ PROPFIND request failed: {e}', file=sys.stderr)
+        sys.exit(1)
+
+    # response status code must be between 200 and 400 to continue
+    # use overloaded __bool__() to check this
+    if not response:
+        print(f'⛔ HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
+
+    debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
+
+    root = cET.fromstring(response.text)
+    fileId = root.findtext('.//{http://owncloud.org/ns}fileid')
+    debug(f'🗃️ fileId is {fileId}')
+
+    if fileId is None:
+        print(f'⛔ HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
+
+    return fileId
+
+def lockOrUnlock(action, fileurl):
+    global _auth
+
+    if action == 'lock':
+        method = 'LOCK'
+    elif action == 'unlock':
+        method = 'UNLOCK'
+    else:
+        print(f'⛔ internal error. action={action}', file=sys.stderr)
+
+    headers = {'X-User-Lock': '1'}
+    debug(f'📄 request: {method} {fileurl}')
+    debug(f'📎 headers: {headers}')
+
+    try:
+        response = requests.request(method, fileurl, auth=_auth, headers=headers)
+    except requests.RequestException as e:
+        print(f'⛔ request failed: {e}', file=sys.stderr)
+        sys.exit(1)
+
+    # response status code must be between 200 and 400 to continue
+    # use overloaded __bool__() to check this
+    if not response:
+        print(f'⛔ {action} failed. Is the Temporary files lock app installed? If attempting to lock, is it already locked by someone/something else? If attempting to unlock, is the path actually locked?', file=sys.stderr)
+        print(f'📄 HTTP request was {method} {fileurl}', file=sys.stderr)
+        print(f'📨 HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
+
+    debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
+
 if args.action in ['da','dir-album']:
     debug('🏃 making album from directory...')
     ncRelativeAlbumPath = args.target
@@ -228,4 +306,20 @@ if args.action in ['da','dir-album']:
 
     populateAlbum(cleanedAlbumName, albumUrl, mediaUrls)
 
+    debug('🔓 success!')
+
+if args.action in ['i','internal-link']:
+    debug('🏃 getting internal link...')
+    fileId = getFileId(getFilesUrl(normalizeLocalPath(args.target)))
+    baseUrl = config['server']['baseUrl']
+    print(f'{baseUrl}/f/{fileId}')
+
+if args.action in ['l','lock']:
+    debug(f'🏃 locking...')
+    lockOrUnlock('lock', getFilesUrl(normalizeLocalPath(args.target)))
+    debug('🔒 success!')
+
+if args.action in ['u','unlock']:
+    debug('🏃 unlocking...')
+    lockOrUnlock('unlock', getFilesUrl(normalizeLocalPath(args.target)))
     debug('🔓 success!')
