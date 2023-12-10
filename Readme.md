@@ -79,12 +79,17 @@ $ ow unlock ~/Nextcloud/test.md
 
 ## Installation
 
-* install prerequisites
+* clone this repository, or just grab the `ow` script
+* install required dependencies
     * Python 3
-    * Nextcloud desktop sync client
-* download the `main.py` script, save it as `ow`
-* edit values under `YOUR CONFIG`
-* put the script in your path, for example: `~/bin/ow`
+    * Python `requests` library (via e.g. `pip install requests` or `apt install python3-requests`)
+* install optional dependencies
+    * Nextcloud desktop sync client (for lock, unlock, internal-url; not needed for diralbum)
+    * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
+        * on Debian/Ubuntu: `apt install libxml2-utils`
+* edit values under `YOUR CONFIG` ← FIXME
+* put the script in your path
+    * example: `cd ~/.local/bin && ln -s ~/git/meonkeys/ow/ow`
 * make sure it is executable
 * for auto-completion in Bash, source `bash_completion`
 
