@@ -6,7 +6,7 @@ ow - Nextcloud command-line client
 
 ow (like, you're trying to say "owl" and almost succeed) is your handy local command-line pal for Nextcloud. Perform various operations to enhance local editing, collaboration, and more.
 
-Output is minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
+Output is generally minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
 
 ## Usage
 
@@ -20,11 +20,13 @@ ow --help
 
 ### Create album from folder
 
+Add all media in a folder to an album. 
+
 ```bash
 ow dir-album "Photos/2020/Camping trip"
 ```
 
-Add all media in a folder to an album. This works directly against the Nextcloud WebDAV API; the desktop client is not required.
+This works directly against the Nextcloud WebDAV API; the desktop client is not required.
 
 This command expects that the provided path contains media compatible with the Photos and Memories apps (generally just photos and videos). Sub-folders and non-compatible file types are ignored.
 
@@ -141,7 +143,7 @@ Patches welcome. Ask before submitting anything larger than an obvious bugfix. C
     * currently only built for and tested on recent Ubuntu LTS
     * add Windows support
     * add macOS support
-* pick a better name
+* pick a better name?
 * use a real contributor agreement
 * Are there other/better free software utilities like this one? List/promote them.
 * Would it make more sense to implement this and the other feature ideas (above) within the [official client](https://docs.nextcloud.com/desktop/latest/advancedusage.html)?
