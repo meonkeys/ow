@@ -36,13 +36,12 @@ parser.add_argument('target', help='target to operate on. For dir-album, this is
 args = parser.parse_args()
 
 defaultConfigLocation = os.path.expanduser('~/.config/ow/ow.ini')
-config = None
 
 if os.path.exists(defaultConfigLocation):
     config = configparser.ConfigParser()
     config.read(defaultConfigLocation)
 else:
-    print(f'⛔ Config not found. Please create {defaultConfigLocation} based on owconfig.example.', file=sys.stderr)
+    print(f'⛔ Config not found. Please create {defaultConfigLocation} based on the example in the Readme', file=sys.stderr)
     sys.exit(1)
 
 def debug(msg):
