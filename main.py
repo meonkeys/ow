@@ -50,18 +50,6 @@ parser.add_argument('action', help='action to perform', choices=['da','dir-album
 parser.add_argument('target', help='path or name or something')
 args = parser.parse_args()
 
-# Check for debug mode and import additional libraries if needed
-if args.debug:
-    try:
-        import tempfile
-        import subprocess
-    except ImportError:
-        print('⛔ You need to install additional libraries for debugging via '
-              'pip install -r requirements-dev.txt',
-              file=sys.stderr)
-        sys.exit(1)
-
-
 def debug(msg):
     if args.debug:
         print(msg, file=sys.stderr)
