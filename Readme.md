@@ -114,6 +114,14 @@ ow talks with the [Nextcloud WebDAV API](https://docs.nextcloud.com/server/lates
 
 ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcloud-from-a-local-command-line/152774) with one command (get internal link for locally sync'd file). Hopefully by the time you are reading this it has learned more tricks. If I and others use this, like it, and want to do more with it, here are some ideas on what we might do:
 
+## Contributions
+
+Patches welcome. Ask before submitting anything larger than an obvious bugfix. Create a GitHub pull request. Add your name below.
+
+### Contributors
+
+* Frederik Berg
+
 ## Ideas
 
 * add more features
