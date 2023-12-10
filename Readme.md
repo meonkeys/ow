@@ -14,41 +14,35 @@ Output is minimal on success. If an error occurs, messages are printed to standa
 
 List available actions.
 
+```bash
+ow --help
 ```
-$ ow --help
-```
-
-### Get HTML link
-
-FIXME remove this feature
-
-Given a local file path sync'd by the Nextcloud desktop client, return a snippet of HTML to link to the file.
-
-```
-$ ow html-link ~/Nextcloud/Documents/test.md
-<a href="https://cloud.example.com/f/216">Documents/test.md</a>
-```
-
-On Ubuntu Desktop, you can feed the output to `wl-copy -t text/html` then paste the link into any rich text editor.
 
 ### Create album from folder
 
-FIXME: change command to `aff`, `album-from-folder`
-FIXME: move install instructions down
-FIXME: mention python3-requests package
+```bash
+ow dir-album "Photos/2020/Camping trip"
+```
 
-Install the requirements listed in `requirements.txt`, e.g. via `pip3 install -r requirements.txt`. For debugging, install `pip3 install -r requirements-dev.txt` instead.
+Add all media in a folder to an album. This works directly against the Nextcloud WebDAV API; the desktop client is not required.
 
-FIXME: remove the need for `convert-all.sh`
+This command expects that the provided path contains media compatible with the Photos and Memories apps (generally just photos and videos). Sub-folders and non-compatible file types are ignored.
 
-Create `todo-photo-folders.txt`. This is a list of paths in a Nextcloud instance you want converted to albums, one per line. `Photos/2020/Camping trip`, `Photos/2021/sunny day`, etc.
+#### convert many folders to albums
 
-FIXME: use `configparser` instead of python-dotenv
+Example Python script for converting a bunch of folders to albums at once:
 
-Copy the `template.env` file and name the copy `.env`. Change the variables in the new `.env` file accordingly.
-Run `./convert-all.sh`.
+```python
+import subprocess
 
-It expects that the folders listed contain media compatible with the Photos and Memories apps (generally just photos and videos). Sub-folders and non-compatible file types are ignored.
+folders = [
+    'Photos/2020/Camping trip',
+    'Photos/2021/sunny day'
+]
+
+for folder in folders:
+    subprocess.run(['./ow', 'dir-album', folder])
+```
 
 ### Get internal link
 
@@ -84,14 +78,27 @@ $ ow unlock ~/Nextcloud/test.md
     * Python 3
     * Python `requests` library (via e.g. `pip install requests` or `apt install python3-requests`)
 * install optional dependencies
-    * Nextcloud desktop sync client (for lock, unlock, internal-url; not needed for diralbum)
+    * Nextcloud desktop sync client (for lock, unlock, internal-url; not needed for dir-album)
     * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
         * on Debian/Ubuntu: `apt install libxml2-utils`
-* edit values under `YOUR CONFIG` ← FIXME
+* create config file based on example below
 * put the script in your path
     * example: `cd ~/.local/bin && ln -s ~/git/meonkeys/ow/ow`
 * make sure it is executable
 * for auto-completion in Bash, source `bash_completion`
+
+### example config
+
+Create `~/.config/ow/ow.ini` and customize, following the example below:
+
+```ini
+[DEFAULT]
+nextcloudServer = http://localhost:8080
+nextcloudUsername = admin
+
+# if you use multi-factor auth, use an app password here
+nextcloudPassword = admin
+```
 
 ## Architecture
 

@@ -30,7 +30,7 @@ nextcloudWebdavRoot = 'remote.php/dav'
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
 parser.add_argument('action', help='action to perform', choices=['da','dir-album'])
-parser.add_argument('target', help='path or name or something')
+parser.add_argument('target', help='path to operate on. For internal-link, lock, and unlock, this is a local path. For dir-album, this is a remote path.')
 args = parser.parse_args()
 
 defaultConfigLocation = os.path.expanduser('~/.config/ow/ow.ini')
@@ -70,7 +70,7 @@ def getAlbumUrl(albumName):
     return _albumUrl
 
 def captureXmlResponse(text):
-    f = tempfile.NamedTemporaryFile(mode='w', prefix='diralbum_', delete=False)
+    f = tempfile.NamedTemporaryFile(mode='w', prefix='dir-album_', delete=False)
     f.write(text)
     f.close()
     prettyOutputFilename = f.name + '.xml'
