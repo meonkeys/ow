@@ -9,7 +9,7 @@ This is a throwaway or work-in-progress branch with code to convert Nextcloud fo
 ### USAGE
 
 1. Install the requirements listed in `requirements.txt`, e.g. via `pip3 install -r requirements.txt`. For debugging, install `pip3 install -r requirements-dev.txt` instead.
-1. Create `todo-photo-folders.txt`. This is a list of paths in a Nextcloud instance you want converted to albums, one per line. `Photos/2020/Camping trip`, `Photos/2021/sunny day`, etc. Exclude the leading slash.
+1. Create `todo-photo-folders.txt`. This is a list of paths in a Nextcloud instance you want converted to albums, one per line. `Photos/2020/Camping trip`, `Photos/2021/sunny day`, etc.
 1. Copy the `template.env` file and name the copy `.env`. Change the variables in the new `.env` file accordingly.
 1. Run `./convert-all.sh`.
 
