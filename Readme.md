@@ -98,7 +98,7 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
     * read and use config from Nextcloud desktop client
     * [read and use secrets from desktop/OS password manager](https://pypi.org/project/keyring/) or smartcard
 * improve code maintainability
-    * use a real argument parser
+    * use a real argument parser (DONE)
     * add tests
 * improve cross-platform compatibility
     * currently only built for and tested on recent Ubuntu LTS
