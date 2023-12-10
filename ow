@@ -77,7 +77,7 @@ def captureXmlResponse(text):
 
 def isCollectionOrExit(filesUrl):
     global _auth, args
-    debug('🏃 fetching internal file ID...')
+    debug('🏃 fetch internal file ID...')
 
     _propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
     <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
@@ -114,7 +114,7 @@ def isCollectionOrExit(filesUrl):
 
 def getMedia(filesUrl):
     global config, _auth, args
-    debug('🏃 finding media in given folder...')
+    debug('🏃 find media in given folder...')
 
     _propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
     <d:propfind xmlns:d="DAV:" xmlns:oc="http://owncloud.org/ns">
@@ -154,7 +154,7 @@ def getMedia(filesUrl):
 
 def createAlbum(albumName):
     global _auth
-    print(f'🏃 creating album {albumName}...')
+    print(f'🏃 create album {albumName}...')
 
     albumUrl = getAlbumUrl(albumName)
 
@@ -176,11 +176,11 @@ def createAlbum(albumName):
 
 def populateAlbum(cleanedAlbumName, albumUrl, mediaUrls):
     global _auth, args
-    debug('🏃 populating new album...')
+    debug('🏃 populate new album...')
 
     for mediaUrl in mediaUrls:
         mediaFilename = os.path.basename(mediaUrl)
-        print(f'📰 adding {mediaFilename} to {cleanedAlbumName}')
+        print(f'📰 add {mediaFilename} to {cleanedAlbumName}')
         headers = {'Destination': '/'.join([albumUrl, mediaFilename])}
         try:
             response = requests.request('COPY', mediaUrl, auth=_auth, headers=headers)
@@ -201,7 +201,7 @@ def cleanAlbumName(rawAlbumName):
     based = os.path.basename(noTrailingSlash)
     debug(f'💻 basenamed: {based}')
     clean = re.sub(r'^\d{4}-\d{2}-\d{2}\s+', '', based)
-    debug(f'💻 cleaned album name is {clean}')
+    debug(f'💻 clean album name is {clean}')
     if not clean:
         print(f'⛔ invalid album name: {clean}', file=sys.stderr)
         sys.exit(1)
@@ -224,7 +224,7 @@ def normalizeLocalPath(localPath):
 
 def getFileId(fileurl):
     global _auth
-    debug('🏃 fetching internal file ID...')
+    debug('🏃 fetch internal file ID...')
 
     _propfindBody = '''<?xml version="1.0" encoding="UTF-8"?>
     <d:propfind xmlns:d="DAV:">
@@ -288,7 +288,7 @@ def lockOrUnlock(action, fileurl):
     debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
 
 if args.action in ['da','dir-album']:
-    debug('🏃 making album from directory...')
+    debug('🏃 make album from directory...')
     ncRelativeAlbumPath = args.target
     folderWithPhotosUrl = getFilesUrl(ncRelativeAlbumPath)
 
@@ -301,7 +301,7 @@ if args.action in ['da','dir-album']:
     debug(f'📁 album name will be: {cleanedAlbumName}...')
     albumUrl = createAlbum(cleanedAlbumName)
 
-    debug(f'📁 walking collection: {ncRelativeAlbumPath}...')
+    debug(f'📁 walk collection: {ncRelativeAlbumPath}...')
     mediaUrls = getMedia(folderWithPhotosUrl)
 
     populateAlbum(cleanedAlbumName, albumUrl, mediaUrls)
@@ -309,17 +309,17 @@ if args.action in ['da','dir-album']:
     debug('🔓 success!')
 
 if args.action in ['i','internal-link']:
-    debug('🏃 getting internal link...')
+    debug('🏃 get internal link...')
     fileId = getFileId(getFilesUrl(normalizeLocalPath(args.target)))
     baseUrl = config['server']['baseUrl']
     print(f'{baseUrl}/f/{fileId}')
 
 if args.action in ['l','lock']:
-    debug(f'🏃 locking...')
+    debug(f'🏃 lock...')
     lockOrUnlock('lock', getFilesUrl(normalizeLocalPath(args.target)))
     debug('🔒 success!')
 
 if args.action in ['u','unlock']:
-    debug('🏃 unlocking...')
+    debug('🏃 unlock...')
     lockOrUnlock('unlock', getFilesUrl(normalizeLocalPath(args.target)))
     debug('🔓 success!')
