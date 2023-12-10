@@ -6,6 +6,8 @@ ow - Nextcloud command-line client
 
 ow (like, you're trying to say "owl" and almost succeed) is your handy local command-line pal for Nextcloud. Perform various operations to enhance local editing, collaboration, and more.
 
+Output is minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
+
 ## Usage
 
 ### Help
@@ -14,21 +16,11 @@ List available actions.
 
 ```
 $ ow --help
-usage: ow [-h] [-d] {h,html-link,i,internal-link,l,lock,u,unlock} path
-
-positional arguments:
-  {h,html-link,i,internal-link,l,lock,u,unlock}
-                        action to perform
-  path                  local path to operate on
-
-options:
-  -h, --help            show this help message and exit
-  -d, --debug           enable debug messages
 ```
 
-Output is minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
-
 ### Get HTML link
+
+FIXME remove this feature
 
 Given a local file path sync'd by the Nextcloud desktop client, return a snippet of HTML to link to the file.
 
@@ -38,6 +30,25 @@ $ ow html-link ~/Nextcloud/Documents/test.md
 ```
 
 On Ubuntu Desktop, you can feed the output to `wl-copy -t text/html` then paste the link into any rich text editor.
+
+### Create album from folder
+
+FIXME: change command to `aff`, `album-from-folder`
+FIXME: move install instructions down
+FIXME: mention python3-requests package
+
+Install the requirements listed in `requirements.txt`, e.g. via `pip3 install -r requirements.txt`. For debugging, install `pip3 install -r requirements-dev.txt` instead.
+
+FIXME: remove the need for `convert-all.sh`
+
+Create `todo-photo-folders.txt`. This is a list of paths in a Nextcloud instance you want converted to albums, one per line. `Photos/2020/Camping trip`, `Photos/2021/sunny day`, etc.
+
+FIXME: use `configparser` instead of python-dotenv
+
+Copy the `template.env` file and name the copy `.env`. Change the variables in the new `.env` file accordingly.
+Run `./convert-all.sh`.
+
+It expects that the folders listed contain media compatible with the Photos and Memories apps (generally just photos and videos). Sub-folders and non-compatible file types are ignored.
 
 ### Get internal link
 
