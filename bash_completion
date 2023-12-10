@@ -18,7 +18,7 @@ function _ow_comp() {
     COMPREPLY=()
     local cur="${COMP_WORDS[COMP_CWORD]}"
     if [[ "$COMP_CWORD" -eq 1 ]]; then
-        COMPREPLY=($(compgen -W '-h --help -d --debug i internal-link l lock u unlock' -- "$cur"))
+        COMPREPLY=($(compgen -W '-h --help -d --debug da dir-album i internal-link l lock u unlock' -- "$cur"))
     else
         local IFS=$'\n'
         local CANDIDATES=($(compgen -f -- "$cur"))
