@@ -85,7 +85,7 @@ $ ow unlock ~/Nextcloud/test.md
         * on Debian/Ubuntu: `apt install libxml2-utils`
 * create config file based on example below
 * put the script in your path
-    * example: `cd ~/.local/bin && ln -s ~/git/meonkeys/ow/ow`
+    * example: `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
 * make sure it is executable
 * for auto-completion in Bash, source `bash_completion`
 
