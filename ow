@@ -17,38 +17,35 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import configparser
 import os
 import re
 import requests
 import sys
 import xml.etree.cElementTree as cET
-from dotenv import load_dotenv
 import urllib
 
-##########################################################################
-# INTERNAL CONFIG
-##########################################################################
-
 nextcloudWebdavRoot = 'remote.php/dav'
-
-##########################################################################
-# LOAD EXTERNAL CONFIG FROM .env FILE
-##########################################################################
-
-load_dotenv()
-nextcloudServer = os.getenv('nextcloudServer')
-nextcloudUsername = os.getenv('nextcloudUsername')
-nextcloudPassword = os.getenv('nextcloudPassword')
-
-##########################################################################
-# MAIN CODE - probably leave this alone unless you wanna hack
-##########################################################################
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
 parser.add_argument('action', help='action to perform', choices=['da','dir-album'])
 parser.add_argument('target', help='path or name or something')
 args = parser.parse_args()
+
+defaultConfigLocation = os.path.expanduser('~/.config/ow/ow.ini')
+config = None
+
+if os.path.exists(defaultConfigLocation):
+    config = configparser.ConfigParser()
+    config.read(defaultConfigLocation)
+else:
+    print(f'⛔ Config not found. Please create {defaultConfigLocation} based on owconfig.example.', file=sys.stderr)
+    sys.exit(1)
+
+nextcloudServer = config['DEFAULT']['nextcloudServer']
+nextcloudUsername = config['DEFAULT']['nextcloudUsername']
+nextcloudPassword = config['DEFAULT']['nextcloudPassword']
 
 def debug(msg):
     if args.debug:

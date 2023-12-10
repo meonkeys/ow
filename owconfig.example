@@ -1,0 +1,10 @@
+#############################################
+# Configuration template.                   #
+# Customize and copy to ~/.config/ow/ow.ini #
+#############################################
+[DEFAULT]
+nextcloudServer = http://localhost:8080
+nextcloudUsername = admin
+
+# if you use multi-factor auth, use an app password here
+nextcloudPassword = admin
