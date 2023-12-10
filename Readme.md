@@ -101,7 +101,7 @@ password = admin
 
 [local]
 # If you use the Nextcloud Desktop client, set this to indicate where files are sync'd.
-# Required fo lock, unlock, and internal-url.
+# Required for lock, unlock, and internal-url.
 # Not needed for dir-album.
 syncFolder = /home/joeuser/Nextcloud
 
