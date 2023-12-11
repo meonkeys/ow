@@ -86,7 +86,6 @@ $ ow unlock ~/Nextcloud/test.md
 * create config file based on example below
 * optional: put the script in your path
     * example: `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
-* optional: for auto-completion in Bash, source `bash_completion`
 
 ### example config
 
@@ -146,9 +145,9 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 * Are there other/better free software utilities like this one? List/promote them.
 * Would it make more sense to implement this and the other feature ideas (above) within the [official client](https://docs.nextcloud.com/desktop/latest/advancedusage.html)?
     * [Do the maintainers want these features?](https://github.com/nextcloud/desktop/issues?q=label%3A%22feature%3A+%3Awhite_square_button%3A+nextcloudcmd%22+)
-* improve Bash programmable completion
-    * handle spaces gracefully, like `ls` <kbd>Tab</kbd> or `vim` <kbd>Tab</kbd>
-    * get completions from the python script itself so we [DRY](https://en.wikipedia.org/wiki/Don't_repeat_yourself)
+* support programmable completion
+    * handle spaces (in directories and filenames) gracefully
+    * generate completions [from the python script itself](https://kislyuk.github.io/argcomplete/)
     * see also: [this](https://stackoverflow.com/questions/14597466/custom-tab-completion-in-python-argparse), [this](https://stackoverflow.com/questions/9568611/how-does-argparse-and-the-deprecated-optparse-respond-to-tab-keypress-after), and [this](https://spin.atomicobject.com/2016/02/14/bash-programmable-completion/)
 
 ## COPYLEFT AND LICENSE
