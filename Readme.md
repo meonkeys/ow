@@ -107,14 +107,6 @@ syncFolder = /home/joeuser/Nextcloud
 
 ```
 
-## Architecture
-
-ow talks with the [Nextcloud WebDAV API](https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html).
-
-## History
-
-ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcloud-from-a-local-command-line/152774) with one command (get internal link for locally sync'd file). Hopefully by the time you are reading this it has learned more tricks. If I and others use this, like it, and want to do more with it, here are some ideas on what we might do:
-
 ## Contributions
 
 Patches welcome. Ask before submitting anything larger than an obvious bugfix. Create a GitHub pull request. Add your name below.
@@ -122,6 +114,14 @@ Patches welcome. Ask before submitting anything larger than an obvious bugfix. C
 ### Contributors
 
 * Frederik Berg
+
+## Architecture
+
+ow is written in Python. It examines local files sync'd by the [Nextcloud desktop client](https://github.com/nextcloud/desktop/) for some operations, and talks with the [Nextcloud WebDAV API](https://docs.nextcloud.com/server/latest/developer_manual/client_apis/WebDAV/basic.html) for others.
+
+## History
+
+ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcloud-from-a-local-command-line/152774) with one command (get internal link for locally sync'd file).
 
 ## Ideas
 
