@@ -104,7 +104,6 @@ password = admin
 # Required for lock, unlock, and internal-url.
 # Not needed for dir-album.
 syncFolder = /home/joeuser/Nextcloud
-
 ```
 
 ## Contributions
