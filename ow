@@ -67,7 +67,8 @@ def getAlbumUrl(albumName):
     return _albumUrl
 
 def captureXmlResponse(text):
-    f = tempfile.NamedTemporaryFile(mode='w', prefix='dir-album_', delete=False)
+    global args
+    f = tempfile.NamedTemporaryFile(mode='w', prefix=args.action+'_', delete=False)
     f.write(text)
     f.close()
     prettyOutputFilename = f.name + '.xml'
