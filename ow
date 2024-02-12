@@ -305,7 +305,7 @@ if args.action in ['da','dir-album']:
 
     populateAlbum(cleanedAlbumName, albumUrl, mediaUrls)
 
-    debug('🔓 success!')
+    debug('🖼️ success!')
 
 if args.action in ['i','internal-link']:
     debug('🏃 get internal link...')
