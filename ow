@@ -18,6 +18,7 @@
 
 import argparse
 import configparser
+from datetime import datetime, timedelta
 import os
 import re
 import requests
@@ -31,8 +32,8 @@ nextcloudWebdavRoot = 'remote.php/dav'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
-parser.add_argument('action', help='action to perform', choices=['da','dir-album','i','internal-link','l','lock','u','unlock'])
-parser.add_argument('target', help='target to operate on. For dir-album, this is a remote path. For internal-link, lock, and unlock, this is a local path.')
+parser.add_argument('action', help='action to perform', choices=['da','dir-album','doe','delete-old-events','i','internal-link','l','lock','u','unlock'])
+parser.add_argument('target', help='target to operate on. For dir-album, this is a remote path. For delete-old-events, this is a spec such as "calendar=personal,minimumAge=2y" (deletes calendar events on the "personal" calendar older than 2 years). For internal-link, lock, and unlock, this is a local path.')
 args = parser.parse_args()
 
 defaultConfigLocation = os.path.expanduser('~/.config/ow/ow.ini')
@@ -287,6 +288,75 @@ def lockOrUnlock(action, fileurl):
 
     debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
 
+def buildTimeRange(minimumAge):
+    startTime = '20100101T000000Z'
+    y = int(minimumAge.split('y')[0])
+    offset = timedelta(days=365 * y)
+    offsetTime = datetime.utcnow() - offset
+    endTime = offsetTime.strftime("%Y%m%dT%H%M%SZ")
+    return (startTime, endTime)
+
+def findOldEvents(calendar, minimumAge):
+    global config, _auth, args
+    debug(f'🔍 search for events in calendar {calendar} older than {minimumAge}...')
+
+    (startTime,endTime) = buildTimeRange(minimumAge)
+
+    _requestBody = f'''<?xml version="1.0"?>
+<x1:calendar-query xmlns:x1="urn:ietf:params:xml:ns:caldav">
+  <x0:prop xmlns:x0="DAV:">
+    <x1:calendar-data/>
+  </x0:prop>
+  <x1:filter>
+    <x1:comp-filter name="VCALENDAR">
+      <x1:comp-filter name="VEVENT">
+        <x1:time-range start="{startTime}" end="{endTime}"/>
+      </x1:comp-filter>
+    </x1:comp-filter>
+  </x1:filter>
+</x1:calendar-query>'''
+
+    url = '/'.join([config['server']['baseUrl'], nextcloudWebdavRoot, 'calendars', config['server']['username'], calendar])
+
+    method = 'REPORT'
+    headers = {'Depth': '1'}
+    try:
+        response = requests.request(method, url, auth=_auth, data=_requestBody, headers=headers)
+    except requests.RequestException as e:
+        print(f'⛔ {method} request failed: {e}', file=sys.stderr)
+        sys.exit(1)
+
+    # response status code must be between 200 and 400 to continue
+    # use overloaded __bool__() to check this
+    if not response:
+        print(f'⛔ HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
+
+    if args.debug:
+        prettyOutputFilename = captureXmlResponse(response.text)
+        debug(f'📝 HTTP response code {response.status_code}. Response text saved in: {prettyOutputFilename}')
+
+    eventDavPaths = []
+
+    root = cET.fromstring(response.text)
+    for href in root.findall('.//{DAV:}href'):
+        eventDavPaths.append(href.text)
+
+    return eventDavPaths
+
+def deleteEvents(calendar, eventDavPaths):
+    global config, _auth
+
+    method = 'DELETE'
+    for eventDavPath in eventDavPaths:
+        debug(f'🏃 delete event at {eventDavPath}...')
+        url = '/'.join([config['server']['baseUrl'], eventDavPath])
+        try:
+            response = requests.request(method, url, auth=_auth)
+        except requests.RequestException as e:
+            print('⛔ {method} request failed: {}'.format(e), file=sys.stderr)
+            sys.exit(1)
+
 if args.action in ['da','dir-album']:
     debug('🏃 make album from directory...')
     ncRelativeAlbumPath = args.target
@@ -307,6 +377,18 @@ if args.action in ['da','dir-album']:
     populateAlbum(cleanedAlbumName, albumUrl, mediaUrls)
 
     debug('🖼️ success!')
+
+if args.action in ['doe','delete-old-events']:
+    debug('🏃 delete old events...')
+    # parse "old events" spec
+    (arg1, arg2) = args.target.split(',')
+    calendar = arg1.split('=')[1]
+    minimumAge = arg2.split('=')[1]
+    # find events
+    eventDavPaths = findOldEvents(calendar, minimumAge)
+    # delete events
+    deleteEvents(calendar, eventDavPaths)
+    debug('🗑️ success!')
 
 if args.action in ['i','internal-link']:
     debug('🏃 get internal link...')

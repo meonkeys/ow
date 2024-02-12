@@ -55,6 +55,23 @@ $ ow internal-link ~/Nextcloud/test.md
 https://cloud.example.com/f/229
 ```
 
+### Delete old calendar events
+
+Finds and deletes old calendar events.
+
+> ⚠️ DATA LOSS WARNING! ⚠️
+>
+> This is a proof of concept only.
+> The code to perform this action is largely naïve and untested.
+> It requires complex input with a limited grammar.
+> It uses undocumented APIs and employs only minimal error handling and input verification.
+
+Delete events older than 2 years on a calendar called "personal":
+
+```bash
+ow delete-old-events 'calendar=personal,minimumAge=2y'
+```
+
 ### Lock
 
 Lock a file. Requires the [Temporary files lock app](https://apps.nextcloud.com/apps/files_lock).
@@ -123,6 +140,7 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 
 ## Ideas
 
+* add tests (unit tests, integration tests, end-to-end/acceptance tests, etc.)
 * add more features
     * post chat messages
     * add a task
