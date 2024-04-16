@@ -57,7 +57,7 @@ https://cloud.example.com/f/229
 
 ### Delete old calendar events
 
-Finds and deletes old calendar events.
+Find and delete old calendar events.
 
 > ⚠️ DATA LOSS WARNING! ⚠️
 >
