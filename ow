@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# PYTHON_ARGCOMPLETE_OK
 
 # ow - Nextcloud command-line client - main code
 # Copyright (C) 2023  Adam Monsen
@@ -20,6 +21,7 @@ import argparse
 import configparser
 from datetime import datetime, timedelta
 import os
+import pathlib
 import re
 import requests
 import sys
@@ -32,8 +34,43 @@ nextcloudWebdavRoot = 'remote.php/dav'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
-parser.add_argument('action', help='action to perform', choices=['da','dir-album','doe','delete-old-events','i','internal-link','l','lock','u','unlock'])
-parser.add_argument('target', help='target to operate on. For dir-album, this is a remote path. For delete-old-events, this is a spec such as "calendar=personal,minimumAge=2y" (deletes calendar events on the "personal" calendar older than 2 years). For internal-link, lock, and unlock, this is a local path.')
+
+subparsers = parser.add_subparsers(required=True, dest='action')
+
+parserDirAlbum = subparsers.add_parser(
+    'dir-album', aliases=['da'], help='add all media in a folder to an album')
+parserDirAlbum.add_argument(
+    'remotePath', help='folder path on server, e.g. "Photos/2020/Camping trip"', type=ascii)
+
+parserDeleteOldEvents = subparsers.add_parser(
+    'delete-old-events', aliases=['doe'], help='find and delete old calendar events')
+parserDeleteOldEvents.add_argument(
+    'eventSpec', help='e.g. "calendar=personal,minimumAge=2y" to delete calendar events on the "personal" calendar older than 2 years')
+
+parserInternalLink = subparsers.add_parser(
+    'internal-link', aliases=['i'], help='get server-side permalink for a sync\'d file')
+_argPi = parserInternalLink.add_argument(
+    'localPath', help='local absolute or relative path to a sync\'d file', type=pathlib.Path)
+
+parserLock = subparsers.add_parser(
+    'lock', aliases=['l'], help='lock a file')
+_argL = parserLock.add_argument(
+    'localPath', help='local absolute or relative path to a sync\'d file', type=pathlib.Path)
+
+parserUnlock = subparsers.add_parser(
+    'unlock', aliases=['u'], help='unlock a file')
+_argU = parserUnlock.add_argument(
+    'localPath', help='local absolute or relative path to a sync\'d file', type=pathlib.Path)
+
+try:
+    import argcomplete
+    _argPi.completer = argcomplete.completers.FilesCompleter
+    _argL.completer = argcomplete.completers.FilesCompleter
+    _argU.completer = argcomplete.completers.FilesCompleter
+    argcomplete.autocomplete(parser)
+except ImportError:
+    pass
+
 args = parser.parse_args()
 
 defaultConfigLocation = os.path.expanduser('~/.config/ow/ow.ini')
@@ -68,8 +105,8 @@ def getAlbumUrl(albumName):
     return _albumUrl
 
 def captureXmlResponse(text):
-    global args
-    f = tempfile.NamedTemporaryFile(mode='w', prefix=args.action+'_', delete=False)
+    caller = inspect.stack()[1][3]
+    f = tempfile.NamedTemporaryFile(mode='w', prefix=caller+'_', delete=False)
     f.write(text)
     f.close()
     prettyOutputFilename = f.name + '.xml'
@@ -359,7 +396,7 @@ def deleteEvents(calendar, eventDavPaths):
 
 if args.action in ['da','dir-album']:
     debug('🏃 make album from directory...')
-    ncRelativeAlbumPath = args.target
+    ncRelativeAlbumPath = args.remotePath
     folderWithPhotosUrl = getFilesUrl(ncRelativeAlbumPath)
 
     # Confirm we got a path to a collection (folder). If not, this call will
@@ -381,7 +418,7 @@ if args.action in ['da','dir-album']:
 if args.action in ['doe','delete-old-events']:
     debug('🏃 delete old events...')
     # parse "old events" spec
-    (arg1, arg2) = args.target.split(',')
+    (arg1, arg2) = args.eventSpec.split(',')
     calendar = arg1.split('=')[1]
     minimumAge = arg2.split('=')[1]
     # find events
@@ -392,16 +429,16 @@ if args.action in ['doe','delete-old-events']:
 
 if args.action in ['i','internal-link']:
     debug('🏃 get internal link...')
-    fileId = getFileId(getFilesUrl(normalizeLocalPath(args.target)))
+    fileId = getFileId(getFilesUrl(normalizeLocalPath(args.localPath)))
     baseUrl = config['server']['baseUrl']
     print(f'{baseUrl}/f/{fileId}')
 
 if args.action in ['l','lock']:
     debug(f'🏃 lock...')
-    lockOrUnlock('lock', getFilesUrl(normalizeLocalPath(args.target)))
+    lockOrUnlock('lock', getFilesUrl(normalizeLocalPath(args.localPath)))
     debug('🔒 success!')
 
 if args.action in ['u','unlock']:
     debug('🏃 unlock...')
-    lockOrUnlock('unlock', getFilesUrl(normalizeLocalPath(args.target)))
+    lockOrUnlock('unlock', getFilesUrl(normalizeLocalPath(args.localPath)))
     debug('🔓 success!')

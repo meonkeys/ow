@@ -100,6 +100,7 @@ $ ow unlock ~/Nextcloud/test.md
     * Nextcloud desktop sync client (for lock, unlock, internal-url; not needed for dir-album)
     * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
         * on Debian/Ubuntu: `apt install libxml2-utils`
+    * `python3-argcomplete` for Bash programmable (Tab) completion
 * create config file based on example below
 * optional: put the script in your path
     * example: `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
@@ -169,11 +170,6 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 * Are there other/better free software utilities like this one? List/promote them.
 * Would it make more sense to implement this and the other feature ideas (above) within the [official client](https://docs.nextcloud.com/desktop/latest/advancedusage.html)?
     * [Do the maintainers want these features?](https://github.com/nextcloud/desktop/issues?q=label%3A%22feature%3A+%3Awhite_square_button%3A+nextcloudcmd%22+)
-* support programmable completion
-    * Bash, fish, etc.
-    * handle spaces (in directories and filenames) gracefully
-    * generate completions [from the python script itself](https://kislyuk.github.io/argcomplete/)
-    * see also: [this](https://stackoverflow.com/questions/14597466/custom-tab-completion-in-python-argparse), [this](https://stackoverflow.com/questions/9568611/how-does-argparse-and-the-deprecated-optparse-respond-to-tab-keypress-after), and [this](https://spin.atomicobject.com/2016/02/14/bash-programmable-completion/)
 
 ## COPYLEFT AND LICENSE
 
