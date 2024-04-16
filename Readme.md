@@ -101,6 +101,7 @@ $ ow unlock ~/Nextcloud/test.md
     * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
         * on Debian/Ubuntu: `apt install libxml2-utils`
     * `python3-argcomplete` for Bash programmable (Tab) completion
+        * must set this up with, e.g. `eval "$(register-python-argcomplete3 ow)"` in your `~/.bashrc`
 * create config file based on example below
 * optional: put the script in your path
     * example: `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
