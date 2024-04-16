@@ -1,14 +1,76 @@
 # 🦉 ow
 
+## Name
+
 ow - Nextcloud command-line client
 
-## Introduction
+## Synopsis
 
-ow (like, you're trying to say "owl" and almost succeed) is your handy local command-line pal for Nextcloud. Perform various operations to enhance local editing, collaboration, and more.
+```
+ow action target
+```
+
+## Description
+
+ow (like, you're trying to say "owl" and almost succeed) is your handy local command-line pal for Nextcloud. ow enhances local editing, collaboration, and more by providing missing features or by providing a command-line interface for existing features.
 
 Output is generally minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
 
-## Usage
+### Quick examples
+
+```bash
+# Add all media in a folder to an album.
+ow dir-album "Photos/2020/Camping trip"
+
+# Get internal link for a file.
+ow internal-link ~/Nextcloud/Readme.md
+
+# Find and delete old calendar events.
+ow delete-old-events 'calendar=personal,minimumAge=2y'
+
+# Lock a file.
+ow lock ~/Nextcloud/Readme.md
+
+# Unlock a file.
+ow unlock ~/Nextcloud/Readme.md
+```
+
+## Install
+
+* clone this repository
+    * or just download the `ow` script
+    * put `ow` in your `$PATH` and make it executable, e.g. `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
+* install required dependencies
+    * Python 3
+    * Python `requests` library (via e.g. `pip install requests` or `apt install python3-requests`)
+* install optional dependencies
+    * Nextcloud desktop sync client (for lock, unlock, internal-url; not needed for dir-album)
+    * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
+        * on Debian/Ubuntu: `apt install libxml2-utils`
+    * `python3-argcomplete` for Bash programmable (Tab) completion
+        * must also set this up with, e.g. `eval "$(register-python-argcomplete3 ow)"` in your `~/.bashrc`
+    * [Temporary files lock app](https://apps.nextcloud.com/apps/files_lock) for locking and unlocking files.
+* create config file based on "example config" below
+
+### example config
+
+Create `~/.config/ow/ow.ini` and customize, following the example below:
+
+```ini
+[server]
+baseUrl = http://localhost:8080
+username = admin
+# If you use multi-factor auth, use an app password here.
+password = admin
+
+[local]
+# If you use the Nextcloud Desktop client, set this to indicate where files are sync'd.
+# Required for lock, unlock, and internal-url.
+# Not needed for dir-album.
+syncFolder = /home/joeuser/Nextcloud
+```
+
+## Detailed usage
 
 ### Help
 
@@ -20,7 +82,7 @@ ow --help
 
 ### Create album from folder
 
-Add all media in a folder to an album. 
+Add all media in a folder to an album.
 
 ```bash
 ow dir-album "Photos/2020/Camping trip"
@@ -50,23 +112,17 @@ for folder in folders:
 
 Given a local file path sync'd by the Nextcloud desktop client, return the "internal link" on the Nextcloud server.
 
-```
-$ ow internal-link ~/Nextcloud/test.md
-https://cloud.example.com/f/229
+```bash
+ow internal-link ~/Nextcloud/test.md
+# example output:
+# https://cloud.example.com/f/229
 ```
 
 ### Delete old calendar events
 
-Find and delete old calendar events.
+Find and delete old calendar events given an event filter specification.
 
-> ⚠️ DATA LOSS WARNING! ⚠️
->
-> This is a proof of concept only.
-> The code to perform this action is largely naïve and untested.
-> It requires complex input with a limited grammar.
-> It uses undocumented APIs and employs only minimal error handling and input verification.
-
-Delete events older than 2 years on a calendar called "personal":
+This will delete events older than 2 years on a calendar called "personal":
 
 ```bash
 ow delete-old-events 'calendar=personal,minimumAge=2y'
@@ -74,54 +130,20 @@ ow delete-old-events 'calendar=personal,minimumAge=2y'
 
 ### Lock
 
-Lock a file. Requires the [Temporary files lock app](https://apps.nextcloud.com/apps/files_lock).
+Lock a file.
 
-```
-$ ow lock ~/Nextcloud/test.md
+```bash
+ow lock ~/Nextcloud/Readme.md
 ```
 
 Locking indicates to other users your wish to avoid conflicts in shared files.
 
 ### Unock
 
-Unlock a file. Requires the [Temporary files lock app](https://apps.nextcloud.com/apps/files_lock).
+Unlock a file.
 
-```
-$ ow unlock ~/Nextcloud/test.md
-```
-
-## Installation
-
-* clone this repository
-    * or just download the `ow` script
-    * put `ow` in your `$PATH` and make it executable, e.g. `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
-* install required dependencies
-    * Python 3
-    * Python `requests` library (via e.g. `pip install requests` or `apt install python3-requests`)
-* install optional dependencies
-    * Nextcloud desktop sync client (for lock, unlock, internal-url; not needed for dir-album)
-    * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
-        * on Debian/Ubuntu: `apt install libxml2-utils`
-    * `python3-argcomplete` for Bash programmable (Tab) completion
-        * must also set this up with, e.g. `eval "$(register-python-argcomplete3 ow)"` in your `~/.bashrc`
-* create config file based on "example config" below
-
-### example config
-
-Create `~/.config/ow/ow.ini` and customize, following the example below:
-
-```ini
-[server]
-baseUrl = http://localhost:8080
-username = admin
-# If you use multi-factor auth, use an app password here.
-password = admin
-
-[local]
-# If you use the Nextcloud Desktop client, set this to indicate where files are sync'd.
-# Required for lock, unlock, and internal-url.
-# Not needed for dir-album.
-syncFolder = /home/joeuser/Nextcloud
+```bash
+ow unlock ~/Nextcloud/Readme.md
 ```
 
 ## Contributions
