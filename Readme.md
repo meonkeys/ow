@@ -92,7 +92,9 @@ $ ow unlock ~/Nextcloud/test.md
 
 ## Installation
 
-* clone this repository, or just grab the `ow` script
+* clone this repository
+    * or just download the `ow` script
+    * put `ow` in your `$PATH` and make it executable, e.g. `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
 * install required dependencies
     * Python 3
     * Python `requests` library (via e.g. `pip install requests` or `apt install python3-requests`)
@@ -101,10 +103,8 @@ $ ow unlock ~/Nextcloud/test.md
     * `xmllint` at `/usr/bin/xmllint` (for debugging API responses)
         * on Debian/Ubuntu: `apt install libxml2-utils`
     * `python3-argcomplete` for Bash programmable (Tab) completion
-        * must set this up with, e.g. `eval "$(register-python-argcomplete3 ow)"` in your `~/.bashrc`
-* create config file based on example below
-* optional: put the script in your path
-    * example: `ln -s ~/git/meonkeys/ow/ow ~/.local/bin`
+        * must also set this up with, e.g. `eval "$(register-python-argcomplete3 ow)"` in your `~/.bashrc`
+* create config file based on "example config" below
 
 ### example config
 
