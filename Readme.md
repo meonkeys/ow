@@ -59,15 +59,15 @@ Create `~/.config/ow/ow.ini` and customize, following the example below:
 ```ini
 [server]
 baseUrl = http://localhost:8080
-username = admin
+username = user
 # If you use multi-factor auth, use an app password here.
-password = admin
+password = redacted
 
 [local]
 # If you use the Nextcloud Desktop client, set this to indicate where files are sync'd.
 # Required for lock, unlock, and internal-url.
-# Not needed for dir-album.
-syncFolder = /home/joeuser/Nextcloud
+# Not needed for dir-album nor delete-old-events.
+syncFolder = /home/user/Nextcloud
 ```
 
 ## Detailed usage
