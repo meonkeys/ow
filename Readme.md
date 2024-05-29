@@ -58,7 +58,8 @@ Create `~/.config/ow/ow.ini` and customize, following the example below:
 
 ```ini
 [server]
-baseUrl = http://localhost:8080
+# Must start with https
+baseUrl = https://cloud.example.com
 username = user
 # If you use multi-factor auth, use an app password here.
 password = redacted

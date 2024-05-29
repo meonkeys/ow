@@ -82,6 +82,10 @@ else:
     print(f'⛔ Config not found. Please create {defaultConfigLocation} based on the example in the Readme', file=sys.stderr)
     sys.exit(1)
 
+if not config['server']['baseUrl'].startswith('https'):
+    print('🚨 server baseUrl must start with https', file=sys.stderr)
+    sys.exit(1)
+
 def debug(msg):
     if args.debug:
         print(msg, file=sys.stderr)
