@@ -243,6 +243,9 @@ def cleanAlbumName(rawAlbumName):
     debug(f'💻 without trailing slash: {noTrailingSlash}')
     based = os.path.basename(noTrailingSlash)
     debug(f'💻 basenamed: {based}')
+    # This step is arbitrary, originally based on author preferences.
+    # Might be better to accept a new option argument to explicitly set the album name.
+    # e.g. `ow dir-album -a 'Camping trip' 'Photos/2020-04-01 Camping trip'`
     clean = re.sub(r'^\d{4}-\d{2}-\d{2}\s+-?\s*', '', based)
     debug(f'💻 clean album name is {clean}')
     if not clean:

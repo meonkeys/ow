@@ -93,6 +93,14 @@ This works directly against the Nextcloud WebDAV API; the desktop client is not 
 
 This command expects that the provided path contains media compatible with the Photos and Memories apps (generally just photos and videos). Sub-folders and non-compatible file types are ignored.
 
+The new album will be named by transforming the last path element. Some arbitary cleanup steps are performed. Examples:
+
+| Path                           | Album             |
+|--------------------------------|-------------------|
+| Photos/2020/Camping trip/      | Camping trip      |
+| Photos/2020-Camping trip       | 2020-Camping trip |
+| Photos/2020-04-01 Camping trip | Camping trip      |
+
 #### convert many folders to albums
 
 Example Python script for converting a bunch of folders to albums at once:
