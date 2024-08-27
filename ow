@@ -29,6 +29,7 @@ import subprocess
 import tempfile
 import xml.etree.cElementTree as cET
 import urllib
+import inspect
 
 nextcloudWebdavRoot = 'remote.php/dav'
 
