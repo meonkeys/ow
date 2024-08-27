@@ -162,6 +162,7 @@ Patches welcome. Ask before submitting anything larger than an obvious bugfix. C
 ### Contributors
 
 * Frederik Berg
+* Tom Laermans
 
 ## Architecture
 
