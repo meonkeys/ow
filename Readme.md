@@ -161,6 +161,7 @@ Patches welcome. Ask before submitting anything larger than an obvious bugfix. C
 
 ### Contributors
 
+* Adam Monsen
 * Frederik Berg
 * Tom Laermans
 
