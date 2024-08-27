@@ -242,7 +242,7 @@ def cleanAlbumName(rawAlbumName):
     debug(f'💻 without trailing slash: {noTrailingSlash}')
     based = os.path.basename(noTrailingSlash)
     debug(f'💻 basenamed: {based}')
-    clean = re.sub(r'^\d{4}-\d{2}-\d{2}\s+', '', based)
+    clean = re.sub(r'^\d{4}-\d{2}-\d{2}\s+-?\s*', '', based)
     debug(f'💻 clean album name is {clean}')
     if not clean:
         print(f'⛔ invalid album name: {clean}', file=sys.stderr)
