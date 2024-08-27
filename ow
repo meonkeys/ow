@@ -40,7 +40,7 @@ subparsers = parser.add_subparsers(required=True, dest='action')
 parserDirAlbum = subparsers.add_parser(
     'dir-album', aliases=['da'], help='add all media in a folder to an album')
 parserDirAlbum.add_argument(
-    'remotePath', help='folder path on server, e.g. "Photos/2020/Camping trip"', type=ascii)
+    'remotePath', help='folder path on server, e.g. "Photos/2020/Camping trip"', type=str)
 
 parserDeleteOldEvents = subparsers.add_parser(
     'delete-old-events', aliases=['doe'], help='find and delete old calendar events')
