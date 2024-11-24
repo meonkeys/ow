@@ -28,6 +28,9 @@ ow internal-link ~/Nextcloud/Readme.md
 # Find and delete old calendar events.
 ow delete-old-events 'calendar=personal,minimumAge=2y'
 
+# Find and delete old tasks.
+ow delete-old-tasks 'list=tasks,minimumAge=2y'
+
 # Lock a file.
 ow lock ~/Nextcloud/Readme.md
 
@@ -137,6 +140,19 @@ This will delete events older than 2 years on a calendar called "personal":
 ow delete-old-events 'calendar=personal,minimumAge=2y'
 ```
 
+### Delete old tasks
+
+Find and delete old tasks given a task filter specification.
+
+This will delete tasks older than 2 years on a list called "tasks":
+
+```bash
+ow delete-old-tasks 'list=tasks,minimumAge=2y'
+```
+
+This is experimental.
+See "delete-old-tasks notes", below.
+
 ### Lock
 
 Lock a file.
@@ -172,6 +188,14 @@ ow is written in Python. It examines local files sync'd by the [Nextcloud deskto
 ## History
 
 ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcloud-from-a-local-command-line/152774) with one command (get internal link for locally sync'd file).
+
+## delete-old-tasks notes
+
+* My approach is super inefficient. Why can't I do a proper logical AND in the caldav REPORT query? If I could I wouldn't have to filter them one by one later.
+* Should this be combined with delete-old-events?
+* alternate API clients
+    * I should try https://pypi.org/project/caldav/ instead of doing manual caldav HTTP requests. Look for: better searching/filtering, better date parsing
+    * is https://github.com/cloud-py-api/nc_py_api stable, sticking around, supported, licensed properly?
 
 ## Ideas
 

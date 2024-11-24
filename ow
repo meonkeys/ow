@@ -19,7 +19,8 @@
 
 import argparse
 import configparser
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from dateutil.parser import parse
 import os
 import pathlib
 import re
@@ -47,6 +48,11 @@ parserDeleteOldEvents = subparsers.add_parser(
     'delete-old-events', aliases=['doe'], help='find and delete old calendar events')
 parserDeleteOldEvents.add_argument(
     'eventSpec', help='e.g. "calendar=personal,minimumAge=2y" to delete calendar events on the "personal" calendar older than 2 years')
+
+parserDeleteOldTasks = subparsers.add_parser(
+    'delete-old-tasks', aliases=['dot'], help='find and delete old tasks')
+parserDeleteOldTasks.add_argument(
+    'taskSpec', help='e.g. "list=tasks,minimumAge=2y" deletes tasks from the "tasks" lists older than 2 years')
 
 parserInternalLink = subparsers.add_parser(
     'internal-link', aliases=['i'], help='get server-side permalink for a sync\'d file')
@@ -333,11 +339,15 @@ def lockOrUnlock(action, fileurl):
 
     debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
 
-def buildTimeRange(minimumAge):
-    startTime = '20100101T000000Z'
+def datetimeFromAgeInYears(minimumAge):
     y = int(minimumAge.split('y')[0])
     offset = timedelta(days=365 * y)
-    offsetTime = datetime.utcnow() - offset
+    offsetTime = datetime.now(timezone.utc) - offset
+    return offsetTime
+
+def buildTimeRange(minimumAge):
+    startTime = '20100101T000000Z'
+    offsetTime = datetimeFromAgeInYears(minimumAge)
     endTime = offsetTime.strftime("%Y%m%dT%H%M%SZ")
     return (startTime, endTime)
 
@@ -389,18 +399,138 @@ def findOldEvents(calendar, minimumAge):
 
     return eventDavPaths
 
-def deleteEvents(calendar, eventDavPaths):
+def deleteDavResource(path):
+    url = '/'.join([config['server']['baseUrl'], path])
+    try:
+        response = requests.request('DELETE', url, auth=_auth)
+    except requests.RequestException as e:
+        print('⛔ DELETE request failed: {}'.format(e), file=sys.stderr)
+        sys.exit(1)
+
+def deleteEvents(eventDavPaths):
     global config, _auth
 
-    method = 'DELETE'
     for eventDavPath in eventDavPaths:
-        debug(f'🏃 delete event at {eventDavPath}...')
-        url = '/'.join([config['server']['baseUrl'], eventDavPath])
-        try:
-            response = requests.request(method, url, auth=_auth)
-        except requests.RequestException as e:
-            print('⛔ {method} request failed: {}'.format(e), file=sys.stderr)
-            sys.exit(1)
+        debug(f'🏃 delete event {eventDavPath}...')
+        deleteDavResource(eventDavPath)
+
+def findCompletedTasks(tlist):
+    global config, _auth, args
+    debug(f'🔍 search for completed tasks in list {tlist}...')
+
+    # this doesn't seem to work like a proper AND query, so I have to get all
+    # completed tasks, then filter them by date later
+    _requestBody = f'''<?xml version="1.0"?>
+<x1:calendar-query xmlns:x1="urn:ietf:params:xml:ns:caldav">
+  <x0:prop xmlns:x0="DAV:">
+    <x1:calendar-data/>
+  </x0:prop>
+  <x1:filter>
+    <x1:comp-filter name="VCALENDAR">
+      <x1:comp-filter name="VTODO">
+        <x1:prop-filter name="STATUS">
+          <x1:text-match collation="i;ascii-casemap">COMPLETED</x1:text-match>
+        </x1:prop-filter>
+      </x1:comp-filter>
+    </x1:comp-filter>
+  </x1:filter>
+</x1:calendar-query>'''
+
+    url = '/'.join([config['server']['baseUrl'], nextcloudWebdavRoot, 'calendars', config['server']['username'], tlist])
+
+    method = 'REPORT'
+    headers = {'Depth': '1'}
+    try:
+        response = requests.request(method, url, auth=_auth, data=_requestBody, headers=headers)
+    except requests.RequestException as e:
+        print(f'⛔ {method} request failed: {e}', file=sys.stderr)
+        sys.exit(1)
+
+    # response status code must be between 200 and 400 to continue
+    # use overloaded __bool__() to check this
+    if not response:
+        print(f'⛔ HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
+
+    if args.debug:
+        prettyOutputFilename = captureXmlResponse(response.text)
+        debug(f'📝 HTTP response code {response.status_code}. Response text saved in: {prettyOutputFilename}')
+
+    taskDavPaths = []
+
+    root = cET.fromstring(response.text)
+    for href in root.findall('.//{DAV:}href'):
+        taskDavPaths.append(href.text)
+
+    return taskDavPaths
+
+def dateStringToObject(dateStr):
+    # force UTC always, we're dealing with year comparsions so 1 day or less doesn't matter
+    if not dateStr.endswith('Z'):
+        dateStr += 'Z'
+    return parse(dateStr)
+
+def getTask(taskPath):
+    try:
+        url = '/'.join([config['server']['baseUrl'], taskPath])
+        response = requests.get(url, auth=_auth)
+    except requests.RequestException as e:
+        print(f'⛔ GET request failed: {e}', file=sys.stderr)
+        sys.exit(1)
+    t = {}
+    t['_dav_path'] = url
+    for line in response.text.split('\r\n'):
+        if re.match(r'^BEGIN:VTODO$', line):
+            t['type'] = 'task'
+        elif m := re.match(r'^STATUS:([A-Z]+)$', line):
+            t['status'] = m[1] # e.g. COMPLETED
+        elif m := re.match(r'^COMPLETED:([0-9]{8}T[0-9]{6}Z?)$', line):
+            rawDate = m[1] # e.g. 20230623T220922Z
+            t['completed'] = dateStringToObject(rawDate)
+    return t
+
+def isOlderThan(task, minimumAge):
+    thisDate = task['completed']
+    minDate = datetimeFromAgeInYears(minimumAge)
+    # smaller is older
+    return thisDate < minDate
+
+def isValidTask(task, minimumAge):
+    if task['type'] != 'task':
+        print('⛔ invalid type: ' + task['type'])
+        sys.exit(1)
+
+    if task['status'] != 'COMPLETED':
+        print('⛔ invalid status: ' + task['status'])
+        sys.exit(1)
+
+    if 'completed' not in task:
+        print(f'⛔ {task} missing completed date')
+        sys.exit(1)
+
+def filterTasks(tasks, minimumAge):
+    debug(f'🔍 filter tasks by minimumAge={minimumAge}...')
+    (startTime,endTime) = buildTimeRange(minimumAge)
+    for taskPath in tasks:
+        debug(f'⚗️ checking task: {taskPath}')
+        t = getTask(taskPath)
+        isValidTask(t, minimumAge)
+        if isOlderThan(t, minimumAge):
+            debug(f'🍑 ripe. completed at: ' + str(t['completed']))
+        else:
+            debug(f'👶 too young, completed at: ' + str(t['completed']))
+            continue
+    return tasks
+
+def deleteTasks(taskDavPaths):
+    global config, _auth
+
+    for taskDavPath in taskDavPaths:
+        debug(f'🏃 delete task {taskDavPath}...')
+        # FIXME - remove
+        debug('🚧 abort -- under construction')
+        break
+        #deleteDavResource(taskDavPath)
 
 if args.action in ['da','dir-album']:
     debug('🏃 make album from directory...')
@@ -432,7 +562,20 @@ if args.action in ['doe','delete-old-events']:
     # find events
     eventDavPaths = findOldEvents(calendar, minimumAge)
     # delete events
-    deleteEvents(calendar, eventDavPaths)
+    deleteEvents(eventDavPaths)
+    debug('🗑️ success!')
+
+if args.action in ['dot','delete-old-tasks']:
+    debug('🏃 delete old tasks...')
+    # parse "old tasks" spec
+    (arg1, arg2) = args.taskSpec.split(',')
+    tlist = arg1.split('=')[1]
+    minimumAge = arg2.split('=')[1]
+    # find tasks
+    completed = findCompletedTasks(tlist)
+    taskDavPaths = filterTasks(completed, minimumAge)
+    # delete tasks
+    deleteTasks(taskDavPaths)
     debug('🗑️ success!')
 
 if args.action in ['i','internal-link']:
