@@ -207,6 +207,8 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 * use [Nextcloud Python Framework](https://github.com/cloud-py-api/nc_py_api) instead of WebDAV API?
 * improve locking in Nextcloud
     * fix what I'm calling "local lock then edit causes local conflict" issue (might be [BUG - Nextcloud 3.0.5 - The file isn't locked in Nextcloud files in Windows 10, if you edit it, a "conflicted copy" is saved. | nextcloud/files_lock/issues #553](https://github.com/nextcloud/files_lock/issues/553))
+* support multiple folder sync connections
+* support multiple accounts
 
 ## COPYLEFT AND LICENSE
 
