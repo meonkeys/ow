@@ -205,6 +205,8 @@ ow [started](https://help.nextcloud.com/t/get-internal-link-for-a-file-in-nextcl
 * Would it make more sense to implement this and the other feature ideas (above) within the [official client](https://docs.nextcloud.com/desktop/latest/advancedusage.html)?
     * [Do the maintainers want these features?](https://github.com/nextcloud/desktop/issues?q=label%3A%22feature%3A+%3Awhite_square_button%3A+nextcloudcmd%22+)
 * use [Nextcloud Python Framework](https://github.com/cloud-py-api/nc_py_api) instead of WebDAV API?
+* improve locking in Nextcloud
+    * fix what I'm calling "local lock then edit causes local conflict" issue (might be [BUG - Nextcloud 3.0.5 - The file isn't locked in Nextcloud files in Windows 10, if you edit it, a "conflicted copy" is saved. | nextcloud/files_lock/issues #553](https://github.com/nextcloud/files_lock/issues/553))
 
 ## COPYLEFT AND LICENSE
 
