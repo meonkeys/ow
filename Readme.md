@@ -33,6 +33,9 @@ ow lock ~/Nextcloud/Readme.md
 
 # Unlock a file.
 ow unlock ~/Nextcloud/Readme.md
+
+# Create a task
+ow add-task 'Vacuum rugs'
 ```
 
 ## Install
@@ -153,6 +156,14 @@ Unlock a file.
 
 ```bash
 ow unlock ~/Nextcloud/Readme.md
+```
+
+### Add task
+
+Create a [task](https://apps.nextcloud.com/apps/tasks).
+
+```bash
+ow add-task 'Vacuum rugs'
 ```
 
 ## Contributions

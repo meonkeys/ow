@@ -19,11 +19,13 @@
 
 import argparse
 import configparser
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import pathlib
+import random
 import re
 import requests
+import string
 import sys
 import subprocess
 import tempfile
@@ -37,6 +39,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
 
 subparsers = parser.add_subparsers(required=True, dest='action')
+
+parserAddTask = subparsers.add_parser(
+    'add-task', aliases=['at'], help='add a task')
+parserAddTask.add_argument(
+    'summary', help='task summary/title')
+parserAddTask.add_argument(
+    '-d', '--dueDate', help='task due date (accepts many forms)')
 
 parserDirAlbum = subparsers.add_parser(
     'dir-album', aliases=['da'], help='add all media in a folder to an album')
@@ -194,6 +203,52 @@ def getMedia(filesUrl):
                 media.append(config['server']['baseUrl'] + r.find('.//{DAV:}href').text)
 
     return media
+
+def _getWeakId():
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(24))
+
+_jankyTaskTemplate = u'''BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:ow v0.0.1
+BEGIN:VTODO
+DTSTAMP:{created}
+UID:{weakId}
+CREATED:{created}
+LAST-MODIFIED:{created}
+SUMMARY:{summary}
+DUE;VALUE=DATE:{due}
+END:VTODO
+END:VCALENDAR
+'''
+
+def addTask(summary, dueDate):
+    global _auth
+    print(f'📅 create new task "{summary}" due "{dueDate}"...')
+
+    if dueDate:
+        print(f'⚠️ custom due date not yet implemented')
+
+    weakId = _getWeakId()
+    taskFilename = 'ow-' + weakId + '.ics'
+    url = '/'.join([config['server']['baseUrl'], nextcloudWebdavRoot, 'calendars', config['server']['username'], 'tasks', taskFilename])
+    nowUtcString = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    todayLocal = datetime.now().strftime('%Y%m%d')
+    taskData = _jankyTaskTemplate.format(weakId=weakId, created=nowUtcString, summary=summary, due=todayLocal).encode('utf-8')
+
+    try:
+        response = requests.request('PUT', url, auth=_auth, data=taskData)
+    except requests.RequestException as e:
+        print('⛔ PUT request failed: {}'.format(e), file=sys.stderr)
+        sys.exit(1)
+
+    # response status code must be between 200 and 400 to continue
+    # use overloaded __bool__() to check this
+    if not response:
+        print(f'⛔ HTTP response code {response.status_code}. Response text: {response.text}', file=sys.stderr)
+        sys.exit(1)
+
+    debug(f'📝 HTTP response code {response.status_code}. Response text: {response.text}')
 
 def createAlbum(albumName):
     global _auth
@@ -401,6 +456,10 @@ def deleteEvents(calendar, eventDavPaths):
         except requests.RequestException as e:
             print('⛔ {method} request failed: {}'.format(e), file=sys.stderr)
             sys.exit(1)
+
+if args.action in ['at','add-task']:
+    debug('🏃 add task...')
+    addTask(args.summary, args.dueDate)
 
 if args.action in ['da','dir-album']:
     debug('🏃 make album from directory...')
