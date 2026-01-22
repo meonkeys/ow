@@ -35,7 +35,7 @@ import inspect
 
 nextcloudWebdavRoot = 'remote.php/dav'
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description='🦉 Nextcloud command-line client')
 parser.add_argument('-d', '--debug', help='enable debug messages', action='store_true')
 
 subparsers = parser.add_subparsers(required=True, dest='action')
