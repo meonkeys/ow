@@ -210,10 +210,10 @@ def _getWeakId():
 
 _jankyTaskTemplate = u'''BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:ow v0.0.1
+PRODID:meonkeys/ow v0.0.1
 BEGIN:VTODO
 DTSTAMP:{created}
-UID:{weakId}
+UID:{uid}
 CREATED:{created}
 LAST-MODIFIED:{created}
 SUMMARY:{summary}
@@ -229,12 +229,12 @@ def addTask(summary, dueDate):
     if dueDate:
         print(f'⚠️ custom due date not yet implemented')
 
-    weakId = _getWeakId()
-    taskFilename = 'ow-' + weakId + '.ics'
+    uid = 'ow-' + _getWeakId()
+    taskFilename = uid + '.ics'
     url = '/'.join([config['server']['baseUrl'], nextcloudWebdavRoot, 'calendars', config['server']['username'], 'tasks', taskFilename])
     nowUtcString = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     todayLocal = datetime.now().strftime('%Y%m%d')
-    taskData = _jankyTaskTemplate.format(weakId=weakId, created=nowUtcString, summary=summary, due=todayLocal).encode('utf-8')
+    taskData = _jankyTaskTemplate.format(uid=uid, created=nowUtcString, summary=summary, due=todayLocal).encode('utf-8')
 
     try:
         response = requests.request('PUT', url, auth=_auth, data=taskData)
