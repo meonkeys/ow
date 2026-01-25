@@ -454,7 +454,7 @@ def deleteEvents(calendar, eventDavPaths):
         try:
             response = requests.request(method, url, auth=_auth)
         except requests.RequestException as e:
-            print('⛔ {method} request failed: {}'.format(e), file=sys.stderr)
+            print(f'⛔ {method} request failed: {e}', file=sys.stderr)
             sys.exit(1)
 
 if args.action in ['at','add-task']:
