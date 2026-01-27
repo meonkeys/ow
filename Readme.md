@@ -12,9 +12,11 @@ ow action target
 
 ## Description
 
-ow (like, you're trying to say "owl" and almost succeed) is your handy local command-line pal for Nextcloud. ow enhances local editing, collaboration, and more by providing missing features or by providing a command-line interface for existing features.
+ow is your handy local command-line pal for Nextcloud. ow enhances local editing, collaboration, and more by providing missing features or by providing a command-line interface for existing features.
 
 Output is generally minimal on success. If an error occurs, messages are printed to standard error and a nonzero exit code is returned.
+
+The name "ow" is like you're trying to say "owl" and--painfully--almost succeed. Or perhaps you're thinking "nextclOWd".
 
 ### Quick examples
 
