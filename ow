@@ -361,7 +361,8 @@ def lockOrUnlock(action, fileurl):
     elif action == 'unlock':
         method = 'UNLOCK'
     else:
-        print(f'⛔ internal error. action={action}', file=sys.stderr)
+        print(f'⛔ invalid action={action}', file=sys.stderr)
+        sys.exit(1)
 
     headers = {'X-User-Lock': '1'}
     debug(f'📄 request: {method} {fileurl}')
