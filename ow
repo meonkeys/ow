@@ -29,6 +29,7 @@ import string
 import sys
 import subprocess
 import tempfile
+import uuid
 import xml.etree.cElementTree as cET
 import urllib
 import inspect
@@ -204,10 +205,6 @@ def getMedia(filesUrl):
 
     return media
 
-def _getWeakId():
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(24))
-
 _jankyTaskTemplate = u'''BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:meonkeys/ow v0.0.1
@@ -229,7 +226,7 @@ def addTask(summary, dueDate):
     if dueDate:
         print(f'⚠️ custom due date not yet implemented')
 
-    uid = 'ow-' + _getWeakId()
+    uid = str(uuid.uuid4());
     taskFilename = uid + '.ics'
     url = '/'.join([config['server']['baseUrl'], nextcloudWebdavRoot, 'calendars', config['server']['username'], 'tasks', taskFilename])
     nowUtcString = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
