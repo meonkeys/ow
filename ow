@@ -387,7 +387,7 @@ def buildTimeRange(minimumAge):
     startTime = '20100101T000000Z'
     y = int(minimumAge.split('y')[0])
     offset = timedelta(days=365 * y)
-    offsetTime = datetime.utcnow() - offset
+    offsetTime = datetime.now(timezone.utc) - offset
     endTime = offsetTime.strftime("%Y%m%dT%H%M%SZ")
     return (startTime, endTime)
 
